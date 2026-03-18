@@ -1,8 +1,7 @@
 -- RWC Delivers - Initial Database Schema
 -- All prices stored in cents (integer)
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Use gen_random_uuid() which is built into Postgres 13+
 
 -- ============================================================
 -- ENUM TYPES
@@ -22,7 +21,7 @@ CREATE TYPE staff_role AS ENUM ('owner', 'manager', 'kitchen');
 -- ============================================================
 
 CREATE TABLE customers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT,
   phone TEXT NOT NULL,
   full_name TEXT,
@@ -34,7 +33,7 @@ CREATE TABLE customers (
 CREATE UNIQUE INDEX idx_customers_phone ON customers(phone);
 
 CREATE TABLE addresses (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
   street TEXT NOT NULL,
   unit TEXT,
@@ -56,7 +55,7 @@ ALTER TABLE customers
 -- ============================================================
 
 CREATE TABLE restaurants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
@@ -79,7 +78,7 @@ CREATE TABLE restaurants (
 );
 
 CREATE TABLE restaurant_hours (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6), -- 0=Sunday
   open_time TIME NOT NULL,
@@ -90,7 +89,7 @@ CREATE TABLE restaurant_hours (
 CREATE INDEX idx_restaurant_hours_restaurant ON restaurant_hours(restaurant_id);
 
 CREATE TABLE restaurant_closures (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
@@ -98,7 +97,7 @@ CREATE TABLE restaurant_closures (
 );
 
 CREATE TABLE restaurant_staff (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   user_id UUID NOT NULL,
   role staff_role NOT NULL DEFAULT 'kitchen',
@@ -113,7 +112,7 @@ CREATE TABLE restaurant_staff (
 -- ============================================================
 
 CREATE TABLE menu_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
@@ -124,7 +123,7 @@ CREATE TABLE menu_categories (
 CREATE INDEX idx_menu_categories_restaurant ON menu_categories(restaurant_id);
 
 CREATE TABLE menu_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   category_id UUID NOT NULL REFERENCES menu_categories(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -139,7 +138,7 @@ CREATE INDEX idx_menu_items_restaurant ON menu_items(restaurant_id);
 CREATE INDEX idx_menu_items_category ON menu_items(category_id);
 
 CREATE TABLE modifier_groups (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   menu_item_id UUID NOT NULL REFERENCES menu_items(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   is_required BOOLEAN NOT NULL DEFAULT false,
@@ -149,7 +148,7 @@ CREATE TABLE modifier_groups (
 );
 
 CREATE TABLE modifier_options (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   modifier_group_id UUID NOT NULL REFERENCES modifier_groups(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   price_delta INTEGER NOT NULL DEFAULT 0, -- cents
@@ -162,7 +161,7 @@ CREATE TABLE modifier_options (
 -- ============================================================
 
 CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_number TEXT NOT NULL UNIQUE,
   customer_id UUID NOT NULL REFERENCES customers(id),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id),
@@ -186,7 +185,7 @@ CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_placed_at ON orders(placed_at);
 
 CREATE TABLE order_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   menu_item_id UUID NOT NULL REFERENCES menu_items(id),
   item_name TEXT NOT NULL, -- snapshot
@@ -203,7 +202,7 @@ CREATE INDEX idx_order_items_order ON order_items(order_id);
 -- ============================================================
 
 CREATE TABLE delivery_zones (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   polygon JSONB NOT NULL, -- GeoJSON Polygon
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -211,7 +210,7 @@ CREATE TABLE delivery_zones (
 );
 
 CREATE TABLE drivers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT,
@@ -221,7 +220,7 @@ CREATE TABLE drivers (
 );
 
 CREATE TABLE delivery_assignments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id),
   driver_id UUID NOT NULL REFERENCES drivers(id),
   onfleet_task_id TEXT,
@@ -236,7 +235,7 @@ CREATE INDEX idx_delivery_assignments_order ON delivery_assignments(order_id);
 CREATE INDEX idx_delivery_assignments_driver ON delivery_assignments(driver_id);
 
 CREATE TABLE driver_shifts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   driver_id UUID NOT NULL REFERENCES drivers(id),
   shift_date DATE NOT NULL,
   start_time TIME NOT NULL,
@@ -247,7 +246,7 @@ CREATE TABLE driver_shifts (
 CREATE INDEX idx_driver_shifts_lookup ON driver_shifts(driver_id, shift_date);
 
 CREATE TABLE dispatch_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID REFERENCES orders(id),
   event_type TEXT NOT NULL,
   source TEXT NOT NULL, -- 'stripe', 'onfleet', 'system'
@@ -262,7 +261,7 @@ CREATE INDEX idx_dispatch_events_order ON dispatch_events(order_id);
 -- ============================================================
 
 CREATE TABLE payments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id),
   stripe_payment_intent_id TEXT NOT NULL,
   amount INTEGER NOT NULL, -- cents (total charge)
@@ -276,7 +275,7 @@ CREATE TABLE payments (
 CREATE INDEX idx_payments_order ON payments(order_id);
 
 CREATE TABLE subscriptions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id),
   stripe_subscription_id TEXT,
   status TEXT NOT NULL DEFAULT 'active',
@@ -287,7 +286,7 @@ CREATE TABLE subscriptions (
 );
 
 CREATE TABLE subscription_invoices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscription_id UUID NOT NULL REFERENCES subscriptions(id),
   stripe_invoice_id TEXT,
   amount INTEGER NOT NULL, -- cents
@@ -298,7 +297,7 @@ CREATE TABLE subscription_invoices (
 );
 
 CREATE TABLE restaurant_settlements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id UUID NOT NULL REFERENCES restaurants(id),
   period_start DATE NOT NULL,
   period_end DATE NOT NULL,
@@ -310,7 +309,7 @@ CREATE TABLE restaurant_settlements (
 );
 
 CREATE TABLE tip_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id),
   delivery_assignment_id UUID NOT NULL REFERENCES delivery_assignments(id),
   driver_id UUID NOT NULL REFERENCES drivers(id),
