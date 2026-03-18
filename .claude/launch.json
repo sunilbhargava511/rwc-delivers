@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "marketplace",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--filter", "marketplace"],
+      "port": 3000
+    },
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--filter", "dashboard"],
+      "port": 3001
+    }
+  ]
+}
