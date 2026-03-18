@@ -1,0 +1,21 @@
+{
+  "name": "rwc-delivers",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:marketplace": "turbo dev --filter=marketplace",
+    "dev:dashboard": "turbo dev --filter=dashboard",
+    "build:marketplace": "turbo build --filter=marketplace",
+    "build:dashboard": "turbo build --filter=dashboard"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
