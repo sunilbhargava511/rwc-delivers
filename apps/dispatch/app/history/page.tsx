@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getMockDeliveryHistory } from "../../lib/mock-data";
 import { formatCurrency } from "@rwc/shared";
-import { Badge, Button } from "@rwc/ui";
+import { Badge } from "@rwc/ui";
 
 const allDeliveries = getMockDeliveryHistory();
 
@@ -41,8 +41,7 @@ export default function HistoryPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div>
         {/* Page header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -227,7 +226,6 @@ export default function HistoryPage() {
             <p className="text-xs text-gray-500 mt-1">City / Courier</p>
           </div>
         </div>
-      </div>
     </div>
   );
 }

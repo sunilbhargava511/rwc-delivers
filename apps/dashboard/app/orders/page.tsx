@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import type { OrderWithItems, OrderStatus } from "@rwc/shared";
-import { formatCurrency } from "@rwc/shared";
 import { Badge } from "@rwc/ui";
 import { getMockOrders } from "../../lib/mock-data";
 import { OrderCard } from "../../components/OrderCard";

@@ -8,14 +8,13 @@ const stats = getMockPerformanceStats();
 
 export default function PerformancePage() {
   const maxVolume = Math.max(
-    ...stats.dailyVolume.map((d) => d.cityDriver + d.courier)
+    ...stats.daily_volume.map((d) => d.city_driver + d.courier)
   );
-  const maxTime = Math.max(...stats.avgDeliveryTime.map((d) => d.minutes));
-  const maxCost = Math.max(...stats.costPerDelivery.map((d) => d.cost));
+  const maxTime = Math.max(...stats.avg_delivery_time.map((d) => d.minutes));
+  const maxCost = Math.max(...stats.cost_per_delivery.map((d) => d.cost));
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div>
         {/* Page header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -29,8 +28,8 @@ export default function PerformancePage() {
         {/* 1. Stats Cards Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <PerfStatsCard label="Today" data={stats.today} />
-          <PerfStatsCard label="This Week" data={stats.thisWeek} />
-          <PerfStatsCard label="This Month" data={stats.thisMonth} />
+          <PerfStatsCard label="This Week" data={stats.this_week} />
+          <PerfStatsCard label="This Month" data={stats.this_month} />
         </div>
 
         {/* 2. Delivery Volume — Last 14 Days */}
@@ -39,14 +38,14 @@ export default function PerformancePage() {
             Delivery Volume — Last 14 Days
           </h2>
           <div className="flex items-end gap-1.5 h-48">
-            {stats.dailyVolume.map((day, i) => {
+            {stats.daily_volume.map((day, i) => {
               const totalPct =
                 maxVolume > 0
-                  ? ((day.cityDriver + day.courier) / maxVolume) * 100
+                  ? ((day.city_driver + day.courier) / maxVolume) * 100
                   : 0;
               const cityPct =
-                day.cityDriver + day.courier > 0
-                  ? (day.cityDriver / (day.cityDriver + day.courier)) * 100
+                day.city_driver + day.courier > 0
+                  ? (day.city_driver / (day.city_driver + day.courier)) * 100
                   : 0;
               return (
                 <div
@@ -56,7 +55,7 @@ export default function PerformancePage() {
                   <div
                     className="w-full rounded-t-md overflow-hidden flex flex-col-reverse min-h-[4px]"
                     style={{ height: `${totalPct}%` }}
-                    title={`${day.date}: ${day.cityDriver} city + ${day.courier} courier`}
+                    title={`${day.date}: ${day.city_driver} city + ${day.courier} courier`}
                   >
                     <div
                       className="w-full bg-brand-500"
@@ -72,7 +71,7 @@ export default function PerformancePage() {
             })}
           </div>
           <div className="flex gap-1.5 mt-2">
-            {stats.dailyVolume.map((day, i) => (
+            {stats.daily_volume.map((day, i) => (
               <div
                 key={i}
                 className="flex-1 text-center text-[10px] text-gray-400 leading-tight"
@@ -102,7 +101,7 @@ export default function PerformancePage() {
               Avg Delivery Time
             </h2>
             <div className="flex items-end gap-1.5 h-40">
-              {stats.avgDeliveryTime.map((day, i) => {
+              {stats.avg_delivery_time.map((day, i) => {
                 const heightPct =
                   maxTime > 0 ? (day.minutes / maxTime) * 100 : 0;
                 return (
@@ -123,7 +122,7 @@ export default function PerformancePage() {
               })}
             </div>
             <div className="flex gap-1.5 mt-2">
-              {stats.avgDeliveryTime.map((day, i) => (
+              {stats.avg_delivery_time.map((day, i) => (
                 <div
                   key={i}
                   className="flex-1 text-center text-[10px] text-gray-400 leading-tight"
@@ -140,7 +139,7 @@ export default function PerformancePage() {
               Cost per Delivery
             </h2>
             <div className="flex items-end gap-1.5 h-40">
-              {stats.costPerDelivery.map((day, i) => {
+              {stats.cost_per_delivery.map((day, i) => {
                 const heightPct =
                   maxCost > 0 ? (day.cost / maxCost) * 100 : 0;
                 return (
@@ -161,7 +160,7 @@ export default function PerformancePage() {
               })}
             </div>
             <div className="flex gap-1.5 mt-2">
-              {stats.costPerDelivery.map((day, i) => (
+              {stats.cost_per_delivery.map((day, i) => (
                 <div
                   key={i}
                   className="flex-1 text-center text-[10px] text-gray-400 leading-tight"
@@ -189,7 +188,7 @@ export default function PerformancePage() {
               </tr>
             </thead>
             <tbody>
-              {stats.driverLeaderboard.map((driver, i) => (
+              {stats.driver_leaderboard.map((driver, i) => (
                 <tr key={i} className="border-t border-gray-100">
                   <td className="py-2.5 pr-2 text-gray-400 font-medium">
                     {i + 1}
@@ -201,7 +200,7 @@ export default function PerformancePage() {
                     <Badge variant="default">{driver.deliveries}</Badge>
                   </td>
                   <td className="py-2.5 pr-2 text-right text-gray-600">
-                    {driver.avgTime} min
+                    {driver.avg_time} min
                   </td>
                   <td className="py-2.5 text-right">
                     <span className="text-amber-500">
@@ -216,7 +215,6 @@ export default function PerformancePage() {
             </tbody>
           </table>
         </div>
-      </div>
     </div>
   );
 }
@@ -226,7 +224,7 @@ function PerfStatsCard({
   data,
 }: {
   label: string;
-  data: { deliveries: number; avgTime: number; onTimeRate: number };
+  data: { deliveries: number; avg_time: number; on_time_rate: number };
 }) {
   return (
     <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-200/60 p-5">
@@ -234,9 +232,9 @@ function PerfStatsCard({
       <p className="text-2xl font-bold text-gray-900">{data.deliveries}</p>
       <p className="text-xs text-gray-400 mt-0.5">deliveries</p>
       <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-        <span>{data.avgTime} min avg</span>
+        <span>{data.avg_time} min avg</span>
         <span className="text-gray-300">|</span>
-        <span>{Math.round(data.onTimeRate * 100)}% on-time</span>
+        <span>{Math.round(data.on_time_rate * 100)}% on-time</span>
       </div>
     </div>
   );

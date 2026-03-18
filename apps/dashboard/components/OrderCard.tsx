@@ -1,8 +1,19 @@
 "use client";
 
-import type { OrderWithItems, OrderStatus } from "@rwc/shared";
+import type { OrderWithItems } from "@rwc/shared";
 import { formatCurrency, ORDER_STATUS_LABELS } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
+
+const CUSTOMER_NAMES: Record<string, string> = {
+  "ord-001": "Maria Santos",
+  "ord-002": "David Chen",
+  "ord-003": "Sarah Johnson",
+  "ord-004": "James Park",
+  "ord-005": "Elena Rodriguez",
+  "ord-006": "Kevin Nguyen",
+  "ord-007": "Maria Santos",
+  "ord-008": "Sarah Johnson",
+};
 
 interface OrderCardProps {
   order: OrderWithItems;
@@ -46,10 +57,7 @@ export function OrderCard({
   onMarkReady,
   onReject,
 }: OrderCardProps) {
-  const customerName = order.notes || "Customer";
-  const hasSpecialInstructions = order.items.some(
-    (item) => item.special_instructions
-  );
+  const customerName = CUSTOMER_NAMES[order.id] ?? "Customer";
 
   return (
     <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-200/60 p-4 space-y-3">
@@ -90,6 +98,16 @@ export function OrderCard({
           </div>
         ))}
       </div>
+
+      {/* Special Instructions */}
+      {order.notes && (
+        <div className="border-t border-gray-100 pt-2">
+          <p className="text-xs text-gray-500 italic">
+            <span className="font-medium text-gray-600 not-italic">Note:</span>{" "}
+            {order.notes}
+          </p>
+        </div>
+      )}
 
       {/* Total */}
       <div className="border-t border-gray-100 pt-2 flex justify-between items-center">

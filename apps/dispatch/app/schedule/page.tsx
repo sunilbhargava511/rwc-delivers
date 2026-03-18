@@ -1,6 +1,5 @@
 "use client";
 
-import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
 import { getMockShifts, getMockDrivers } from "../../lib/mock-data";
 

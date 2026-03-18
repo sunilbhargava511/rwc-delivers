@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "../components/Header";
@@ -15,7 +16,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#1d62d8",
 };
 
@@ -47,12 +47,12 @@ export default function RootLayout({
                 </p>
               </div>
               <div className="flex gap-8 text-sm">
-                <a href="/about" className="hover:text-white transition-colors">
+                <Link href="/about" className="hover:text-white transition-colors">
                   How it Works
-                </a>
-                <a href="/faq" className="hover:text-white transition-colors">
+                </Link>
+                <Link href="/faq" className="hover:text-white transition-colors">
                   FAQ
-                </a>
+                </Link>
               </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-gray-600">

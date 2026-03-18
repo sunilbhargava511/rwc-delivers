@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                 }
               }}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
-                !TIP_DEFAULTS.includes(tip as any)
+                !(TIP_DEFAULTS as readonly number[]).includes(tip)
                   ? "border-brand-500 bg-brand-50 text-brand-700"
                   : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }`}

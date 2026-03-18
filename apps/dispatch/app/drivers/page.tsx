@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
 import { getMockDrivers } from "../../lib/mock-data";
 
@@ -167,6 +166,8 @@ export default function DriversPage() {
               </span>
               <button
                 type="button"
+                role="switch"
+                aria-checked={driver.is_active}
                 className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                   driver.is_active ? "bg-green-500" : "bg-gray-300"
                 }`}

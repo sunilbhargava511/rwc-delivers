@@ -66,7 +66,6 @@ export default function OrderConfirmationPage({ params }: Props) {
             const currentIndex = mockStatuses.indexOf(currentStatus);
             const isCompleted = index < currentIndex;
             const isCurrent = index === currentIndex;
-            const isFuture = index > currentIndex;
 
             return (
               <div key={status} className="flex items-start gap-4">

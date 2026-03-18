@@ -66,26 +66,34 @@ export const useCartStore = create<CartState>()(
         }),
 
       updateQuantity: (id, quantity) =>
-        set((state) => ({
-          items:
-            quantity <= 0
-              ? state.items.filter((i) => i.id !== id)
-              : state.items.map((i) =>
-                  i.id === id
-                    ? {
-                        ...i,
-                        quantity,
-                        line_total:
-                          (i.unit_price +
-                            (i.modifiers || []).reduce(
-                              (s, m) => s + m.price_delta,
-                              0
-                            )) *
-                          quantity,
-                      }
-                    : i
-                ),
-        })),
+        set((state) => {
+          if (quantity <= 0) {
+            const newItems = state.items.filter((i) => i.id !== id);
+            return {
+              items: newItems,
+              ...(newItems.length === 0
+                ? { restaurantId: null, restaurantName: "", restaurantSlug: "" }
+                : {}),
+            };
+          }
+          return {
+            items: state.items.map((i) =>
+              i.id === id
+                ? {
+                    ...i,
+                    quantity,
+                    line_total:
+                      (i.unit_price +
+                        (i.modifiers || []).reduce(
+                          (s, m) => s + m.price_delta,
+                          0
+                        )) *
+                      quantity,
+                  }
+                : i
+            ),
+          };
+        }),
 
       clearCart: () =>
         set({

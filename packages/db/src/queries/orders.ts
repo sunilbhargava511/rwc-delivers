@@ -1,6 +1,6 @@
 import { createServerClient } from "../client";
-import type { CartItem, OrderWithItems, SelectedModifier } from "@rwc/shared";
-import { DELIVERY_FEE, formatOrderNumber } from "@rwc/shared";
+import type { CartItem, OrderStatus, OrderWithItems, SelectedModifier } from "@rwc/shared";
+import { DELIVERY_FEE, canTransition, formatOrderNumber } from "@rwc/shared";
 
 interface CreateOrderInput {
   customer_id: string;
@@ -100,9 +100,27 @@ export async function getOrder(orderId: string): Promise<OrderWithItems | null> 
 
 export async function updateOrderStatus(
   orderId: string,
-  status: string
+  status: OrderStatus
 ): Promise<void> {
   const supabase = createServerClient();
+
+  // Fetch current status to validate the transition
+  const { data: order, error: fetchError } = await supabase
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .single();
+
+  if (fetchError || !order) {
+    throw fetchError || new Error(`Order ${orderId} not found`);
+  }
+
+  const currentStatus = order.status as OrderStatus;
+  if (!canTransition(currentStatus, status)) {
+    throw new Error(
+      `Invalid status transition from "${currentStatus}" to "${status}"`
+    );
+  }
 
   const update: Record<string, unknown> = { status };
   if (status === "delivered") {

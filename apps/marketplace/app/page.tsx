@@ -1,6 +1,7 @@
 import { RestaurantFilters } from "../components/RestaurantFilters";
 import { CartDrawer } from "../components/CartDrawer";
 import { getMockRestaurants } from "../lib/mock-data";
+import { formatCurrency, DELIVERY_FEE } from "@rwc/shared";
 
 export default async function HomePage() {
   const restaurants = getMockRestaurants();
@@ -28,7 +29,7 @@ export default async function HomePage() {
               , delivered.
             </h1>
             <p className="mt-5 text-lg text-gray-400 max-w-lg leading-relaxed">
-              Zero markup on food prices. $4.50 flat delivery fee.
+              Zero markup on food prices. {formatCurrency(DELIVERY_FEE)} flat delivery fee.
               100% of food revenue goes directly to restaurants.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">

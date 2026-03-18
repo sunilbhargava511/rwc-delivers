@@ -52,18 +52,10 @@ export default function LiveMapPage() {
   const [deliveries, setDeliveries] = useState<ActiveDelivery[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [now, setNow] = useState(new Date());
-
   useEffect(() => {
     setDeliveries(getMockActiveDeliveries());
     setDrivers(getMockDrivers());
     setAlerts(getMockAlerts());
-  }, []);
-
-  // Tick the clock every 30s for ETA countdowns
-  useEffect(() => {
-    const interval = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(interval);
   }, []);
 
   const activeDrivers = drivers.filter((d) => d.status !== "off_duty");

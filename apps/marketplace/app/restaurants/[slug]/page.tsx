@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getMockRestaurants, getMockMenu } from "../../../lib/mock-data";
 import { MenuSection } from "../../../components/MenuSection";
 import { CartDrawer } from "../../../components/CartDrawer";
-import { Badge } from "@rwc/ui";
 import { formatTime, getDayName } from "@rwc/shared";
 import { getRestaurantImage } from "../../../lib/restaurant-images";
 

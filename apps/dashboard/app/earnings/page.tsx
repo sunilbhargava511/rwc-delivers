@@ -42,7 +42,7 @@ export default function EarningsPage() {
               in fees.
             </p>
             <p className="text-sm text-gray-600">
-              On DoorDash at 25%, you would have paid{" "}
+              On DoorDash at 30%, you would have paid{" "}
               <span className="font-semibold text-gray-900">
                 {formatCurrency(earnings.doordashComparison.doordashFees)}
               </span>
@@ -179,13 +179,13 @@ export default function EarningsPage() {
                       <p className="text-xs text-gray-400">{c.email}</p>
                     </td>
                     <td className="py-2.5 pr-2 text-right text-gray-600">
-                      {c.orderCount}
+                      {c.order_count}
                     </td>
                     <td className="py-2.5 pr-2 text-right text-gray-900 font-medium">
-                      {formatCurrency(c.totalSpent)}
+                      {formatCurrency(c.total_spent)}
                     </td>
                     <td className="py-2.5 text-right text-gray-500 text-xs">
-                      {c.lastOrderDate}
+                      {c.last_order_date}
                     </td>
                   </tr>
                 ))}

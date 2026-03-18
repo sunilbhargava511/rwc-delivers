@@ -59,16 +59,16 @@ export interface Shift {
 }
 
 export interface PerformanceStats {
-  today: { deliveries: number; avgTime: number; onTimeRate: number };
-  thisWeek: { deliveries: number; avgTime: number; onTimeRate: number };
-  thisMonth: { deliveries: number; avgTime: number; onTimeRate: number };
-  dailyVolume: { date: string; cityDriver: number; courier: number }[];
-  avgDeliveryTime: { date: string; minutes: number }[];
-  costPerDelivery: { date: string; cost: number }[];
-  driverLeaderboard: {
+  today: { deliveries: number; avg_time: number; on_time_rate: number };
+  this_week: { deliveries: number; avg_time: number; on_time_rate: number };
+  this_month: { deliveries: number; avg_time: number; on_time_rate: number };
+  daily_volume: { date: string; city_driver: number; courier: number }[];
+  avg_delivery_time: { date: string; minutes: number }[];
+  cost_per_delivery: { date: string; cost: number }[];
+  driver_leaderboard: {
     name: string;
     deliveries: number;
-    avgTime: number;
+    avg_time: number;
     rating: number;
   }[];
 }
@@ -512,30 +512,30 @@ export function getMockShifts(): Shift[] {
 
 export function getMockPerformanceStats(): PerformanceStats {
   return {
-    today: { deliveries: 28, avgTime: 25, onTimeRate: 0.92 },
-    thisWeek: { deliveries: 94, avgTime: 26, onTimeRate: 0.89 },
-    thisMonth: { deliveries: 412, avgTime: 27, onTimeRate: 0.87 },
+    today: { deliveries: 28, avg_time: 25, on_time_rate: 0.92 },
+    this_week: { deliveries: 94, avg_time: 26, on_time_rate: 0.89 },
+    this_month: { deliveries: 412, avg_time: 27, on_time_rate: 0.87 },
 
     // 14 days of daily volume (March 5–18)
-    dailyVolume: [
-      { date: "2026-03-05", cityDriver: 14, courier: 8 },
-      { date: "2026-03-06", cityDriver: 16, courier: 10 },
-      { date: "2026-03-07", cityDriver: 20, courier: 12 },
-      { date: "2026-03-08", cityDriver: 22, courier: 14 },
-      { date: "2026-03-09", cityDriver: 18, courier: 11 },
-      { date: "2026-03-10", cityDriver: 15, courier: 9 },
-      { date: "2026-03-11", cityDriver: 17, courier: 10 },
-      { date: "2026-03-12", cityDriver: 19, courier: 11 },
-      { date: "2026-03-13", cityDriver: 21, courier: 13 },
-      { date: "2026-03-14", cityDriver: 24, courier: 14 },
-      { date: "2026-03-15", cityDriver: 26, courier: 15 },
-      { date: "2026-03-16", cityDriver: 20, courier: 12 },
-      { date: "2026-03-17", cityDriver: 22, courier: 13 },
-      { date: "2026-03-18", cityDriver: 18, courier: 10 },
+    daily_volume: [
+      { date: "2026-03-05", city_driver: 14, courier: 8 },
+      { date: "2026-03-06", city_driver: 16, courier: 10 },
+      { date: "2026-03-07", city_driver: 20, courier: 12 },
+      { date: "2026-03-08", city_driver: 22, courier: 14 },
+      { date: "2026-03-09", city_driver: 18, courier: 11 },
+      { date: "2026-03-10", city_driver: 15, courier: 9 },
+      { date: "2026-03-11", city_driver: 17, courier: 10 },
+      { date: "2026-03-12", city_driver: 19, courier: 11 },
+      { date: "2026-03-13", city_driver: 21, courier: 13 },
+      { date: "2026-03-14", city_driver: 24, courier: 14 },
+      { date: "2026-03-15", city_driver: 26, courier: 15 },
+      { date: "2026-03-16", city_driver: 20, courier: 12 },
+      { date: "2026-03-17", city_driver: 22, courier: 13 },
+      { date: "2026-03-18", city_driver: 18, courier: 10 },
     ],
 
     // 14 days of average delivery time
-    avgDeliveryTime: [
+    avg_delivery_time: [
       { date: "2026-03-05", minutes: 31 },
       { date: "2026-03-06", minutes: 30 },
       { date: "2026-03-07", minutes: 29 },
@@ -553,7 +553,7 @@ export function getMockPerformanceStats(): PerformanceStats {
     ],
 
     // 14 days of cost per delivery in cents — trending down
-    costPerDelivery: [
+    cost_per_delivery: [
       { date: "2026-03-05", cost: 485 },
       { date: "2026-03-06", cost: 472 },
       { date: "2026-03-07", cost: 460 },
@@ -570,17 +570,17 @@ export function getMockPerformanceStats(): PerformanceStats {
       { date: "2026-03-18", cost: 385 },
     ],
 
-    driverLeaderboard: [
-      { name: "Priya Patel", deliveries: 48, avgTime: 21, rating: 4.9 },
-      { name: "Sofia Ramirez", deliveries: 45, avgTime: 22, rating: 4.9 },
-      { name: "Marcus Chen", deliveries: 40, avgTime: 24, rating: 4.8 },
-      { name: "Camila Torres", deliveries: 38, avgTime: 23, rating: 4.8 },
-      { name: "DashFleet - Unit 7", deliveries: 52, avgTime: 29, rating: 4.2 },
-      { name: "QuickRun - Alex", deliveries: 49, avgTime: 30, rating: 4.1 },
-      { name: "Jordan Lee", deliveries: 36, avgTime: 26, rating: 4.6 },
-      { name: "Emily Nguyen", deliveries: 28, avgTime: 25, rating: 4.7 },
-      { name: "Tyler Washington", deliveries: 32, avgTime: 27, rating: 4.5 },
-      { name: "SwiftDrop - Maria", deliveries: 44, avgTime: 27, rating: 4.4 },
+    driver_leaderboard: [
+      { name: "Priya Patel", deliveries: 48, avg_time: 21, rating: 4.9 },
+      { name: "Sofia Ramirez", deliveries: 45, avg_time: 22, rating: 4.9 },
+      { name: "Marcus Chen", deliveries: 40, avg_time: 24, rating: 4.8 },
+      { name: "Camila Torres", deliveries: 38, avg_time: 23, rating: 4.8 },
+      { name: "DashFleet - Unit 7", deliveries: 52, avg_time: 29, rating: 4.2 },
+      { name: "QuickRun - Alex", deliveries: 49, avg_time: 30, rating: 4.1 },
+      { name: "Jordan Lee", deliveries: 36, avg_time: 26, rating: 4.6 },
+      { name: "Emily Nguyen", deliveries: 28, avg_time: 25, rating: 4.7 },
+      { name: "Tyler Washington", deliveries: 32, avg_time: 27, rating: 4.5 },
+      { name: "SwiftDrop - Maria", deliveries: 44, avg_time: 27, rating: 4.4 },
     ],
   };
 }

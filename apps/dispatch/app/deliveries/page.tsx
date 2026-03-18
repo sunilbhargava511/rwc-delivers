@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
 import { getMockActiveDeliveries } from "../../lib/mock-data";
+import type { ActiveDelivery } from "../../lib/mock-data";
 
 const statusLabels: Record<string, string> = {
   awaiting_driver: "Awaiting Driver",
@@ -23,10 +24,9 @@ const statusBadgeVariant: Record<string, "default" | "success" | "warning" | "er
 
 type FilterStatus = "all" | "awaiting_driver" | "in_transit" | "at_pickup";
 
-function getEtaFromDelivery(delivery: ReturnType<typeof getMockActiveDeliveries>[number]): string {
-  const now = new Date("2026-03-18T12:35:00-07:00");
+function getEtaFromDelivery(delivery: ActiveDelivery): string {
   const est = new Date(delivery.estimated_delivery);
-  const diffMin = Math.max(0, Math.round((est.getTime() - now.getTime()) / 60000));
+  const diffMin = Math.max(0, Math.round((est.getTime() - Date.now()) / 60000));
   return `${diffMin} min`;
 }
 

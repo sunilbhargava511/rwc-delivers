@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatCurrency } from "@rwc/shared";
 import { Button } from "@rwc/ui";
 
 const DAYS = [
@@ -91,9 +90,9 @@ export default function SettingsPage() {
   const [description, setDescription] = useState(
     "Authentic Mexican seafood restaurant serving fresh ceviche, fish tacos, and traditional cocina dishes. Family-owned since 2018."
   );
-  const [phone, setPhone] = useState("(650) 555-0100");
+  const [phone, setPhone] = useState("(650) 679-8141");
   const [cuisineTags, setCuisineTags] = useState(initialTags);
-  const [prepTime, setPrepTime] = useState(20);
+  const [prepTime, setPrepTime] = useState(30);
   const [hours, setHours] = useState<Record<string, HoursEntry>>(initialHours);
   const [staff] = useState<StaffMember[]>(initialStaff);
 
@@ -163,7 +162,7 @@ export default function SettingsPage() {
               </label>
               <input
                 type="text"
-                value="2049 Broadway St, Redwood City, CA 94063"
+                value="1772 Broadway St, Redwood City, CA 94063"
                 readOnly
                 className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
               />
