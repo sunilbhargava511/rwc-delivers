@@ -9,7 +9,7 @@
     "dev:dashboard": "turbo dev --filter=dashboard",
     "build:marketplace": "turbo build --filter=marketplace",
     "build:dashboard": "turbo build --filter=dashboard",
-    "start": "cd apps/marketplace && npx next start -p ${PORT:-3000}"
+    "start": "cd apps/${APP:-marketplace} && npx next start -p ${PORT:-3000}"
   },
   "devDependencies": {
     "turbo": "^2.4.0",
