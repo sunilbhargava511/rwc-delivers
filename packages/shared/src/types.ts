@@ -143,7 +143,7 @@ export interface SelectedModifier {
 export interface DeliveryZone {
   id: string;
   name: string;
-  polygon: GeoJSON.Polygon;
+  polygon: { type: 'Polygon'; coordinates: number[][][] };
   is_active: boolean;
   created_at: string;
 }
