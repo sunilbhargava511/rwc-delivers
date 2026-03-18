@@ -3,6 +3,7 @@ import type {
   MenuCategoryWithItems,
   RestaurantHours,
 } from "@rwc/shared";
+import { menuPhotos } from "./menu-photos";
 
 // Mock restaurant data from real RWC restaurant profiles
 // Used for development before Supabase is connected
@@ -913,61 +914,465 @@ export function getMockMenu(slug: string): MenuCategoryWithItems[] {
         ],
       },
     ],
+    "nomadic-kitchen": [
+      {
+        id: "cat30", restaurant_id: "r3", name: "Salads & Soups", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i100", restaurant_id: "r3", category_id: "cat30", name: "Red Lentil Soup", description: "Traditional Turkish red lentil soup", price: 950, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i101", restaurant_id: "r3", category_id: "cat30", name: "Chickpea Salad", description: "Fresh chickpeas with herbs and lemon", price: 950, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i102", restaurant_id: "r3", category_id: "cat30", name: "Mixed Greens Salad", description: "Seasonal mixed greens with house dressing", price: 1545, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i103", restaurant_id: "r3", category_id: "cat30", name: "Cucumber Salad", description: "Crisp cucumbers with herbs and yogurt", price: 1010, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat31", restaurant_id: "r3", name: "Mezze / Appetizers", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i104", restaurant_id: "r3", category_id: "cat31", name: "Hummus", description: "Creamy chickpea dip with olive oil", price: 1010, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i105", restaurant_id: "r3", category_id: "cat31", name: "Babaganoush", description: "Smoky roasted eggplant dip", price: 1010, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i106", restaurant_id: "r3", category_id: "cat31", name: "Mezze Combination", description: "Choose 4 spreads with warm pita", price: 1725, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i107", restaurant_id: "r3", category_id: "cat31", name: "Full Mezze Plate", description: "All mezze items with warm pita bread", price: 2320, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat32", restaurant_id: "r3", name: "Pides (Turkish Flatbreads)", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i108", restaurant_id: "r3", category_id: "cat32", name: "Cheese Pide", description: "Traditional Turkish flatbread with melted cheese", price: 1665, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i109", restaurant_id: "r3", category_id: "cat32", name: "Spicy Spinach Pide", description: "Flatbread with spiced spinach filling", price: 1965, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i110", restaurant_id: "r3", category_id: "cat32", name: "Black Sea Closed Pide", description: "Closed flatbread with ground beef filling", price: 1900, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i111", restaurant_id: "r3", category_id: "cat32", name: "Turkish Sucuk & Cheese Pide", description: "Flatbread with spicy Turkish sausage and cheese", price: 1845, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i112", restaurant_id: "r3", category_id: "cat32", name: "Thin-Crust Closed Pide", description: "Thin crust with spinach and cheese filling", price: 1725, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat33", restaurant_id: "r3", name: "Kebabs", description: "Served with salad and rice", sort_order: 3, is_available: true,
+        items: [
+          { id: "i113", restaurant_id: "r3", category_id: "cat33", name: "Chicken Kebab", description: "Marinated chicken skewers with rice and salad", price: 2250, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i114", restaurant_id: "r3", category_id: "cat33", name: "Kofte Kebab", description: "Hand-formed ground lamb and beef kebab", price: 2450, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i115", restaurant_id: "r3", category_id: "cat33", name: "Beef Kebab", description: "Tender beef skewers with rice and salad", price: 2450, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i116", restaurant_id: "r3", category_id: "cat33", name: "Lamb Kebab", description: "Marinated lamb skewers with rice and salad", price: 2450, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i117", restaurant_id: "r3", category_id: "cat33", name: "Lahmacun", description: "Turkish-style flatbread with spiced meat topping", price: 2400, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat34", restaurant_id: "r3", name: "Desserts", description: null, sort_order: 4, is_available: true,
+        items: [
+          { id: "i118", restaurant_id: "r3", category_id: "cat34", name: "Rice Pudding", description: "Creamy Turkish-style rice pudding", price: 715, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i119", restaurant_id: "r3", category_id: "cat34", name: "Kunefe", description: "Warm shredded phyllo pastry with melted cheese and syrup — highly recommended", price: 1200, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+    ],
+    "timber-and-salt": [
+      {
+        id: "cat40", restaurant_id: "r5", name: "Starters", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i130", restaurant_id: "r5", category_id: "cat40", name: "Warm Marinated Olives", description: "Herb-marinated Mediterranean olives", price: 600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i131", restaurant_id: "r5", category_id: "cat40", name: "Kennebec Fries", description: "Hand-cut fries with house dipping sauce", price: 700, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i132", restaurant_id: "r5", category_id: "cat40", name: "Buffalo Cauliflower", description: "Crispy cauliflower florets with buffalo sauce", price: 1300, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i133", restaurant_id: "r5", category_id: "cat40", name: "Calabrian Chile Arancini", description: "Crispy fried risotto balls with spicy Calabrian chile", price: 1300, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i134", restaurant_id: "r5", category_id: "cat40", name: "Blackened Gulf Shrimp Tacos", description: "Two blackened shrimp tacos with fresh slaw", price: 1300, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i135", restaurant_id: "r5", category_id: "cat40", name: "KFC Bao", description: "Gochujang crispy chicken, pickled cucumber, miso aioli", price: 1980, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat41", restaurant_id: "r5", name: "Entrees", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i136", restaurant_id: "r5", category_id: "cat41", name: "Timber & Salt Burger", description: "Candied bacon, American cheese, caramelized onions", price: 2400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i137", restaurant_id: "r5", category_id: "cat41", name: "T&S Double Smash Burger", description: "Double smash patties with all the fixings", price: 2640, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i138", restaurant_id: "r5", category_id: "cat41", name: "Curried Fried Chicken", description: "With black lentils, couscous, and raita", price: 2900, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i139", restaurant_id: "r5", category_id: "cat41", name: "Petit Filet Mignon", description: "Choice of 5 house sauces", price: 3800, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i140", restaurant_id: "r5", category_id: "cat41", name: "Center Cut Norwegian Salmon", description: "Pan-seared salmon with seasonal vegetables", price: 3800, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i141", restaurant_id: "r5", category_id: "cat41", name: "North Atlantic Salmon", description: "Premium Atlantic salmon preparation", price: 4180, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat42", restaurant_id: "r5", name: "Desserts", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i142", restaurant_id: "r5", category_id: "cat42", name: "Chocolate Chip Cheesecake", description: "Rich and creamy cheesecake with chocolate chips", price: 1400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i143", restaurant_id: "r5", category_id: "cat42", name: "Chocolate Brownie", description: "Warm brownie with vanilla ice cream", price: 1200, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+    ],
+    "donato-enoteca": [
+      {
+        id: "cat50", restaurant_id: "r6", name: "Lunch", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i150", restaurant_id: "r6", category_id: "cat50", name: "Panini", description: "Italian pressed sandwich with seasonal fillings", price: 1800, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i151", restaurant_id: "r6", category_id: "cat50", name: "Classic Pasta", description: "Choose from Bolognese or Carbonara", price: 1800, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i152", restaurant_id: "r6", category_id: "cat50", name: "Pizza", description: "Wood-fired Neapolitan-style pizza", price: 1800, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i153", restaurant_id: "r6", category_id: "cat50", name: "Pizza al Padellino", description: "Pan-style pizza with crispy crust", price: 1800, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat51", restaurant_id: "r6", name: "Dinner", description: "Rotates weekly", sort_order: 1, is_available: true,
+        items: [
+          { id: "i154", restaurant_id: "r6", category_id: "cat51", name: "Ravioletti Amatriciana", description: "Handmade ravioli with amatriciana sauce", price: 1600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i155", restaurant_id: "r6", category_id: "cat51", name: "Pizza al Padellino", description: "Parma prosciutto and imported burrata", price: 1800, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i156", restaurant_id: "r6", category_id: "cat51", name: "Spinach & Mascarpone Cannelloni", description: "Handmade cannelloni with spinach and mascarpone filling", price: 1500, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i157", restaurant_id: "r6", category_id: "cat51", name: "Venetian Milk-Braised Salted Cod", description: "With squid ink polenta", price: 1500, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i158", restaurant_id: "r6", category_id: "cat51", name: "Crispy Saffron Carnaroli Rice Cake", description: "Braised pheasant, pine nuts", price: 1500, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i159", restaurant_id: "r6", category_id: "cat51", name: "Daily Whole Mediterranean Fish", description: "Ask your server for today's selection", price: 4500, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+          { id: "i160", restaurant_id: "r6", category_id: "cat51", name: "40-Day Dry-Aged Rib-Eye", description: "Premium dry-aged beef", price: 5500, image_url: null, is_available: true, sort_order: 6, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat52", restaurant_id: "r6", name: "Tasting Menus", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i161", restaurant_id: "r6", category_id: "cat52", name: "4-Course Tasting Menu", description: "Chef's curated four-course experience", price: 5400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i162", restaurant_id: "r6", category_id: "cat52", name: "7-Course Tasting Menu", description: "Full chef's tasting with wine pairing option", price: 8500, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat53", restaurant_id: "r6", name: "Desserts", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i163", restaurant_id: "r6", category_id: "cat53", name: "Housemade Marigold Gelato", description: "Small-batch artisan gelato", price: 1050, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i164", restaurant_id: "r6", category_id: "cat53", name: "Mango-Coconut Pavlova", description: "Light meringue with tropical fruit", price: 1050, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+    ],
+    angelicas: [
+      {
+        id: "cat60", restaurant_id: "r7", name: "Small Plates", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i170", restaurant_id: "r7", category_id: "cat60", name: "Corn Tortilla Chips & Salsa", description: "House-made chips with fresh salsa", price: 700, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i171", restaurant_id: "r7", category_id: "cat60", name: "Elotes", description: "3 grilled corn on the cob with cotija and lime", price: 900, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i172", restaurant_id: "r7", category_id: "cat60", name: "Angus Beef Sliders", description: "3 mini Angus beef burgers", price: 1400, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i173", restaurant_id: "r7", category_id: "cat60", name: "Crispy Potato Taquitos", description: "Crispy rolled tacos with potato filling", price: 1400, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i174", restaurant_id: "r7", category_id: "cat60", name: "Black Bean Empanadas", description: "3 crispy empanadas with black bean filling", price: 1500, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i175", restaurant_id: "r7", category_id: "cat60", name: "Tamarindo Chicken Wings", description: "Crispy wings with tamarind glaze", price: 1600, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+          { id: "i176", restaurant_id: "r7", category_id: "cat60", name: "Calamares Fritos", description: "Crispy fried calamari with dipping sauce", price: 1800, image_url: null, is_available: true, sort_order: 6, modifier_groups: [] },
+          { id: "i177", restaurant_id: "r7", category_id: "cat60", name: "Ceviche Peruano", description: "Fresh prawns with plantain chips", price: 1900, image_url: null, is_available: true, sort_order: 7, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat61", restaurant_id: "r7", name: "Entrees", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i178", restaurant_id: "r7", category_id: "cat61", name: "Grilled Salmon", description: "Mango & roasted bell pepper sauce, corn & jalapeno medley", price: 2800, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i179", restaurant_id: "r7", category_id: "cat61", name: "Bone-In Ribeye (18oz)", description: "Chimichurri sauce, Hasselback potatoes, broccolini", price: 4500, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i180", restaurant_id: "r7", category_id: "cat61", name: "Butter Lettuce Tacos", description: "Shrimp, avocado, pico de gallo, aioli Peruana", price: 2200, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i181", restaurant_id: "r7", category_id: "cat61", name: "Angus Beef Burger", description: "Romaine, tomatoes, pickles, fries", price: 2000, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i182", restaurant_id: "r7", category_id: "cat61", name: "Stuffed Bell Peppers", description: "Mixed veggies, black beans, corn, arrabbiata sauce", price: 2200, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat62", restaurant_id: "r7", name: "Brunch Highlights", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i183", restaurant_id: "r7", category_id: "cat62", name: "Huevos Rancheros with Chorizo", description: "Traditional Mexican breakfast with chorizo", price: 1800, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i184", restaurant_id: "r7", category_id: "cat62", name: "Chilaquiles", description: "Crispy tortillas in salsa with eggs", price: 1700, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i185", restaurant_id: "r7", category_id: "cat62", name: "Eggs Benedict", description: "Classic eggs Benedict with hollandaise", price: 1900, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i186", restaurant_id: "r7", category_id: "cat62", name: "Corned Beef Hash", description: "House-made corned beef hash with eggs", price: 1800, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+    ],
+    "broadway-masala": [
+      {
+        id: "cat70", restaurant_id: "r8", name: "Appetizers", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i190", restaurant_id: "r8", category_id: "cat70", name: "Spiced Potatoes & Peas Turnovers", description: "Crispy samosas with spiced potato and pea filling", price: 1395, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i191", restaurant_id: "r8", category_id: "cat70", name: "Gobi Manchurian", description: "Indo-Chinese crispy cauliflower in tangy sauce", price: 1550, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i192", restaurant_id: "r8", category_id: "cat70", name: "Apricot & Jalapeno Cheese Kulcha", description: "Stuffed naan with apricot and jalapeno cheese", price: 1695, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i193", restaurant_id: "r8", category_id: "cat70", name: "Lotus Root Patties", description: "Crispy lotus root patties with chutney", price: 1795, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat71", restaurant_id: "r8", name: "Tandoori / Grill", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i194", restaurant_id: "r8", category_id: "cat71", name: "Rustic Spiced Paneer", description: "Tandoor-grilled paneer with aromatic spices", price: 1895, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i195", restaurant_id: "r8", category_id: "cat71", name: "Paneer with Fennel & Dill", description: "Grilled paneer with fresh fennel and dill", price: 1995, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat72", restaurant_id: "r8", name: "Vegetarian Entrees", description: "Served with rice and naan", sort_order: 2, is_available: true,
+        items: [
+          { id: "i196", restaurant_id: "r8", category_id: "cat72", name: "Lahsooni Saag", description: "Garlicky spinach curry", price: 1795, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i197", restaurant_id: "r8", category_id: "cat72", name: "Paneer Tawa Masala", description: "Paneer in rich tomato-based masala on iron skillet", price: 1795, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i198", restaurant_id: "r8", category_id: "cat72", name: "Eggplant with Fennel & Nigella", description: "Roasted eggplant with aromatic spices", price: 1795, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i199", restaurant_id: "r8", category_id: "cat72", name: "Garbanzo Beans Curry", description: "Chickpeas in spiced curry sauce", price: 1795, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i200", restaurant_id: "r8", category_id: "cat72", name: "Okra", description: "Spiced okra stir-fry", price: 2095, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat73", restaurant_id: "r8", name: "Non-Vegetarian Entrees", description: "Served with rice and naan", sort_order: 3, is_available: true,
+        items: [
+          { id: "i201", restaurant_id: "r8", category_id: "cat73", name: "Butter Chicken", description: "Tender chicken in creamy tomato-butter sauce", price: 1895, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i202", restaurant_id: "r8", category_id: "cat73", name: "Chicken Thighs with Garam Masala", description: "Aromatic chicken thighs with garam masala spice blend", price: 1895, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i203", restaurant_id: "r8", category_id: "cat73", name: "Lamb Roganjosh", description: "Slow-cooked lamb in Kashmiri-style gravy", price: 2045, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat74", restaurant_id: "r8", name: "Lunch Boxes", description: null, sort_order: 4, is_available: true,
+        items: [
+          { id: "i204", restaurant_id: "r8", category_id: "cat74", name: "Paneer Tawa Masala Box", description: "Paneer masala with rice, naan, and sides", price: 1795, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i205", restaurant_id: "r8", category_id: "cat74", name: "Butter Chicken Box", description: "Butter chicken with rice, naan, and sides", price: 1895, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i206", restaurant_id: "r8", category_id: "cat74", name: "Lamb Roganjosh Box", description: "Lamb roganjosh with rice, naan, and sides", price: 1895, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+    ],
+    hurrica: [
+      {
+        id: "cat80", restaurant_id: "r9", name: "Raw Bar", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i210", restaurant_id: "r9", category_id: "cat80", name: "Baked Miyagi Oyster", description: "Single baked oyster with house topping", price: 600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i211", restaurant_id: "r9", category_id: "cat80", name: "Mendocino Uni", description: "Fresh Mendocino sea urchin", price: 1000, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i212", restaurant_id: "r9", category_id: "cat80", name: "Live Sea Scallop", description: "Garlic chive butter, Meyer lemon", price: 1200, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat81", restaurant_id: "r9", name: "Small Plates", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i213", restaurant_id: "r9", category_id: "cat81", name: "Warm Milk Bread", description: "House-baked soft milk bread", price: 800, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i214", restaurant_id: "r9", category_id: "cat81", name: "Shellfish Chowder", description: "Creamy New England-style shellfish chowder", price: 1600, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i215", restaurant_id: "r9", category_id: "cat81", name: "Bone Marrow", description: "Garlic confit, cipollini jam, grilled bread", price: 1800, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i216", restaurant_id: "r9", category_id: "cat81", name: "Lobster Ravioli", description: "Handmade ravioli with lobster filling", price: 2100, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat82", restaurant_id: "r9", name: "Entrees", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i217", restaurant_id: "r9", category_id: "cat82", name: "Seared Yellowtail Jack", description: "Pan-seared yellowtail with seasonal accompaniments", price: 3900, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i218", restaurant_id: "r9", category_id: "cat82", name: "Pan-Roasted Black Cod", description: "Miso-glazed black cod, slow roasted", price: 4200, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i219", restaurant_id: "r9", category_id: "cat82", name: "Slow-Roasted Pork Chop", description: "Heritage pork chop with seasonal sides", price: 4500, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i220", restaurant_id: "r9", category_id: "cat82", name: "Whole-Roasted Dorade", description: "Feeds 2-3, served with lemon and herbs", price: 4800, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i221", restaurant_id: "r9", category_id: "cat82", name: "Achiote Marinated Swordfish", description: "Swordfish with achiote marinade and tropical salsa", price: 5500, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i222", restaurant_id: "r9", category_id: "cat82", name: "Kombu-Wrapped Lobster", description: "1.5 lb ember-roasted lobster wrapped in kombu", price: 10250, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat83", restaurant_id: "r9", name: "Group Dining", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i223", restaurant_id: "r9", category_id: "cat83", name: "Chef's Three Course Menu", description: "Per person — appetizer, entree, and dessert", price: 11500, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i224", restaurant_id: "r9", category_id: "cat83", name: "Family-Style Menu", description: "Per person — shared plates and family-style service", price: 14000, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+    ],
+    pamilya: [
+      {
+        id: "cat90", restaurant_id: "r10", name: "Appetizers", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i230", restaurant_id: "r10", category_id: "cat90", name: "Steamed Dumplings (4 pcs)", description: "Pork and vegetable steamed dumplings", price: 549, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i231", restaurant_id: "r10", category_id: "cat90", name: "Pork & Shrimp Lumpia (5 pcs)", description: "Crispy Filipino spring rolls", price: 719, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat91", restaurant_id: "r10", name: "Silog Breakfasts", description: "Served with garlic rice, eggs, ensalada, and atchara", sort_order: 1, is_available: true,
+        items: [
+          { id: "i232", restaurant_id: "r10", category_id: "cat91", name: "Longanisa Silog", description: "Sweet Filipino sausage with garlic rice and eggs", price: 1995, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i233", restaurant_id: "r10", category_id: "cat91", name: "Tocino Spam Silog", description: "Sweet cured pork and Spam with garlic rice and eggs", price: 1995, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i234", restaurant_id: "r10", category_id: "cat91", name: "Pork Tocino Silog", description: "Sweet cured pork with garlic rice and eggs", price: 1995, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i235", restaurant_id: "r10", category_id: "cat91", name: "Fried Milkfish Silog", description: "Crispy fried bangus with garlic rice and eggs", price: 1995, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat92", restaurant_id: "r10", name: "Entree Bowls", description: "Served with rice or pancit, salad, and pickled veggies", sort_order: 2, is_available: true,
+        items: [
+          { id: "i236", restaurant_id: "r10", category_id: "cat92", name: "Boneless Chicken Adobo", description: "Classic Filipino braised chicken in soy-vinegar sauce", price: 1795, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i237", restaurant_id: "r10", category_id: "cat92", name: "Crispy Pork Sisig", description: "Sizzling crispy pork belly with onions and chili", price: 2089, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i238", restaurant_id: "r10", category_id: "cat92", name: "Honey Fried Chicken Bites", description: "Crispy chicken bites with honey glaze", price: 1795, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i239", restaurant_id: "r10", category_id: "cat92", name: "Beef Kaldereta", description: "Rich beef stew with peppers and potatoes", price: 2249, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i240", restaurant_id: "r10", category_id: "cat92", name: "Sinigang Soup Cup", description: "Sour tamarind soup with vegetables", price: 1499, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat93", restaurant_id: "r10", name: "Desserts", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i241", restaurant_id: "r10", category_id: "cat93", name: "Halo Halo", description: "Classic Filipino shaved ice dessert with mixed toppings", price: 900, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i242", restaurant_id: "r10", category_id: "cat93", name: "Sweet Corn Bibingka Mochi Cake", description: "Filipino rice cake with sweet corn", price: 800, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i243", restaurant_id: "r10", category_id: "cat93", name: "Ube White Chocolate Macadamia Nut Cookies", description: "Purple yam cookies with white chocolate and macadamia", price: 600, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+    ],
+    "la-fonda": [
+      {
+        id: "cat100", restaurant_id: "r11", name: "Appetizers", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i250", restaurant_id: "r11", category_id: "cat100", name: "Choriqueso", description: "Bubbling Chihuahua cheese with chorizo", price: 1350, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i251", restaurant_id: "r11", category_id: "cat100", name: "Taquitos de Papa", description: "Crispy rolled tacos with potato filling", price: 1100, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat101", restaurant_id: "r11", name: "Main Dishes", description: "Served with rice, beans, and tortillas", sort_order: 1, is_available: true,
+        items: [
+          { id: "i252", restaurant_id: "r11", category_id: "cat101", name: "Mole Poblano", description: "SIGNATURE — rich mole sauce over chicken with pyramid rice", price: 2000, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i253", restaurant_id: "r11", category_id: "cat101", name: "Chile Relleno", description: "Stuffed poblano pepper with Chihuahua cheese", price: 2000, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i254", restaurant_id: "r11", category_id: "cat101", name: "Huarache Azteca", description: "Handmade tortilla with black beans and squash blossom", price: 2000, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i255", restaurant_id: "r11", category_id: "cat101", name: "Arrachera", description: "Charred skirt steak with chorizo and roasted chiles", price: 2300, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i256", restaurant_id: "r11", category_id: "cat101", name: "Gorditas", description: "Thick corn masa pockets with fillings", price: 1900, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i257", restaurant_id: "r11", category_id: "cat101", name: "Pozole", description: "Hearty hominy soup with pork", price: 2200, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+          { id: "i258", restaurant_id: "r11", category_id: "cat101", name: "Chilaquiles Verdes", description: "Crispy tortilla chips in green salsa with eggs", price: 1850, image_url: null, is_available: true, sort_order: 6, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat102", restaurant_id: "r11", name: "Tacos", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i259", restaurant_id: "r11", category_id: "cat102", name: "Tacos al Pastor (2)", description: "Marinated pork tacos with pineapple", price: 500, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i260", restaurant_id: "r11", category_id: "cat102", name: "Pork Belly Tacos", description: "Crispy pork belly tacos with toppings", price: 1100, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat103", restaurant_id: "r11", name: "Bar", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i261", restaurant_id: "r11", category_id: "cat103", name: "Mescalita", description: "Small batch mezcal cocktail with chapulin salt", price: 1100, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+        ],
+      },
+    ],
+    "pizzeria-cardamomo": [
+      {
+        id: "cat110", restaurant_id: "r12", name: "Antipasti", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i270", restaurant_id: "r12", category_id: "cat110", name: "Marinated Taggiasca Olives", description: "Imported Italian olives marinated in herbs", price: 1300, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i271", restaurant_id: "r12", category_id: "cat110", name: "Arancini Cacio e Pepe", description: "Crispy risotto balls with pecorino and black pepper", price: 1400, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i272", restaurant_id: "r12", category_id: "cat110", name: "Bruschetta", description: "Toasted bread with fresh tomato and basil", price: 1500, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i273", restaurant_id: "r12", category_id: "cat110", name: "Meatballs", description: "House-made Italian meatballs in tomato sauce", price: 1500, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i274", restaurant_id: "r12", category_id: "cat110", name: "Organic Beets", description: "Roasted organic beets with seasonal accompaniments", price: 1900, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat111", restaurant_id: "r12", name: "Pizzas", description: "Sourdough crust, wood-fired", sort_order: 1, is_available: true,
+        items: [
+          { id: "i275", restaurant_id: "r12", category_id: "cat111", name: "Margherita", description: "San Marzano tomato, fior di latte, basil", price: 2300, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i276", restaurant_id: "r12", category_id: "cat111", name: "Stracciatella", description: "Creamy stracciatella cheese with seasonal toppings", price: 2700, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i277", restaurant_id: "r12", category_id: "cat111", name: "Verdura", description: "Seasonal vegetables on sourdough crust", price: 2700, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i278", restaurant_id: "r12", category_id: "cat111", name: "Salsiccia", description: "Italian sausage with roasted peppers", price: 2800, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i279", restaurant_id: "r12", category_id: "cat111", name: "Bronte (Pistachio)", description: "Pistachio cream with mortadella", price: 2800, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i280", restaurant_id: "r12", category_id: "cat111", name: "Spicy Pepperoni with Honey", description: "Pepperoni, calabrian chili, and honey drizzle", price: 2800, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+          { id: "i281", restaurant_id: "r12", category_id: "cat111", name: "Carbonara", description: "Guanciale, pecorino, egg, black pepper", price: 2900, image_url: null, is_available: true, sort_order: 6, modifier_groups: [] },
+          { id: "i282", restaurant_id: "r12", category_id: "cat111", name: "Margherita DOP", description: "San Marzano DOP tomato, buffalo mozzarella DOP, basil", price: 3300, image_url: null, is_available: true, sort_order: 7, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat112", restaurant_id: "r12", name: "Handmade Pasta", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i283", restaurant_id: "r12", category_id: "cat112", name: "Tagliatelle Bolognese", description: "Fresh handmade tagliatelle with slow-cooked Bolognese", price: 2650, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat113", restaurant_id: "r12", name: "Desserts", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i284", restaurant_id: "r12", category_id: "cat113", name: "Tiramisu Classic", description: "Traditional Italian tiramisu", price: 1200, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+        ],
+      },
+    ],
+    mistral: [
+      {
+        id: "cat120", restaurant_id: "r13", name: "Starters", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i290", restaurant_id: "r13", category_id: "cat120", name: "Oak Fire Baked Focaccia", description: "Warm wood-fired focaccia with olive oil", price: 500, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i291", restaurant_id: "r13", category_id: "cat120", name: "Mediterranean Mezze Sampler", description: "Selection of house-made dips and spreads", price: 1450, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i292", restaurant_id: "r13", category_id: "cat120", name: "Calamari with Rock Shrimp & Zucchini", description: "Crispy fried calamari with rock shrimp and zucchini", price: 1500, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i293", restaurant_id: "r13", category_id: "cat120", name: "Crispy Crab & Shrimp Spring Rolls", description: "Crab and shrimp filled spring rolls", price: 1600, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i294", restaurant_id: "r13", category_id: "cat120", name: "Crispy Fritto Misto", description: "Mixed fried seafood platter", price: 1700, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat121", restaurant_id: "r13", name: "Entrees", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i295", restaurant_id: "r13", category_id: "cat121", name: "Pappardelle Pasta", description: "Wide ribbon pasta with seasonal sauce", price: 3000, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i296", restaurant_id: "r13", category_id: "cat121", name: "Citrus Risotto", description: "Creamy risotto with bright citrus flavors", price: 3900, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i297", restaurant_id: "r13", category_id: "cat121", name: "Mistral Classic Paella", description: "Saffron rice with mixed seafood — a house favorite", price: 4500, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i298", restaurant_id: "r13", category_id: "cat121", name: "Seared Hokkaido Scallops", description: "Pan-seared scallops with seasonal accompaniments", price: 4200, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat122", restaurant_id: "r13", name: "Pizza", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i299", restaurant_id: "r13", category_id: "cat122", name: "Oak-Fired Pizza", description: "Wood-fired pizza with seasonal toppings", price: 1400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat123", restaurant_id: "r13", name: "Desserts", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i300", restaurant_id: "r13", category_id: "cat123", name: "Warm Bread Pudding", description: "House specialty warm bread pudding", price: 1400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+        ],
+      },
+    ],
+    bao: [
+      {
+        id: "cat130", restaurant_id: "r14", name: "Dim Sum & Dumplings", description: null, sort_order: 0, is_available: true,
+        items: [
+          { id: "i310", restaurant_id: "r14", category_id: "cat130", name: "Shanghai Xiao Long Bao (6)", description: "Soup dumplings with pork filling", price: 1250, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i311", restaurant_id: "r14", category_id: "cat130", name: "Steamed Pork & Shrimp Shumai (4)", description: "Classic Cantonese steamed dumplings", price: 1050, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i312", restaurant_id: "r14", category_id: "cat130", name: "Steamed BBQ Pork Bao (3)", description: "Fluffy steamed buns with char siu filling", price: 950, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i313", restaurant_id: "r14", category_id: "cat130", name: "Baked BBQ Pork Bao (3)", description: "Golden baked buns with sweet char siu filling", price: 950, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+          { id: "i314", restaurant_id: "r14", category_id: "cat130", name: "Pan-Fried Chicken Pot Sticker (5)", description: "Crispy pan-fried dumplings with chicken filling", price: 1050, image_url: null, is_available: true, sort_order: 4, modifier_groups: [] },
+          { id: "i315", restaurant_id: "r14", category_id: "cat130", name: "Spicy Wonton (6)", description: "Wontons in chili oil sauce", price: 1100, image_url: null, is_available: true, sort_order: 5, modifier_groups: [] },
+          { id: "i316", restaurant_id: "r14", category_id: "cat130", name: "Steamed Sticky Rice in Lotus Leaves", description: "Glutinous rice with savory filling wrapped in lotus leaf", price: 700, image_url: null, is_available: true, sort_order: 6, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat131", restaurant_id: "r14", name: "Entrees", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i317", restaurant_id: "r14", category_id: "cat131", name: "Honey Walnut Prawn", description: "Crispy prawns with candied walnuts and creamy sauce", price: 2600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i318", restaurant_id: "r14", category_id: "cat131", name: "Shanghai Chicken Fried Noodle", description: "Stir-fried noodles with chicken Shanghai-style", price: 2200, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat132", restaurant_id: "r14", name: "Desserts", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i319", restaurant_id: "r14", category_id: "cat132", name: "Fried Sesame Ball", description: "Crispy fried glutinous rice ball with sesame", price: 600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i320", restaurant_id: "r14", category_id: "cat132", name: "Green Tea Mochi", description: "Soft mochi with matcha green tea flavor", price: 600, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i321", restaurant_id: "r14", category_id: "cat132", name: "Baked Sweet Egg Custard Bao", description: "Warm baked bun filled with sweet egg custard", price: 700, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+    ],
+    limon: [
+      {
+        id: "cat140", restaurant_id: "r15", name: "Ceviches", description: "Served with choclo, cancha, and sweet potato", sort_order: 0, is_available: true,
+        items: [
+          { id: "i330", restaurant_id: "r15", category_id: "cat140", name: "Mixto Clasico", description: "Red snapper, calamari, and shrimp in leche de tigre", price: 2530, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i331", restaurant_id: "r15", category_id: "cat140", name: "Pescado Clasico", description: "Fresh fish ceviche in classic preparation", price: 2100, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i332", restaurant_id: "r15", category_id: "cat140", name: "Ceviche de Camarones", description: "Shrimp ceviche with red onion and cilantro", price: 2300, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i333", restaurant_id: "r15", category_id: "cat140", name: "Vegan Ceviche", description: "Cauliflower ceviche with leche de tigre", price: 1900, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat141", restaurant_id: "r15", name: "Piqueos (Appetizers)", description: null, sort_order: 1, is_available: true,
+        items: [
+          { id: "i334", restaurant_id: "r15", category_id: "cat141", name: "Beef Empanada", description: "Baked empanada with seasoned beef filling", price: 1400, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i335", restaurant_id: "r15", category_id: "cat141", name: "Chicken Empanadas", description: "Baked empanadas with seasoned chicken", price: 1540, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i336", restaurant_id: "r15", category_id: "cat141", name: "Truffle Mac & Cheese", description: "Creamy mac and cheese with truffle oil", price: 1430, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat142", restaurant_id: "r15", name: "Clasicos", description: null, sort_order: 2, is_available: true,
+        items: [
+          { id: "i337", restaurant_id: "r15", category_id: "cat142", name: "Saltado de Pollo", description: "Wok-fried chicken with onions, tomatoes, and fries over rice", price: 2600, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i338", restaurant_id: "r15", category_id: "cat142", name: "Pollo a la Brasa", description: "Peruvian rotisserie chicken with aji sauce", price: 2800, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+          { id: "i339", restaurant_id: "r15", category_id: "cat142", name: "Lomo Saltado", description: "Wok-fried beef tenderloin with fries and rice", price: 3400, image_url: null, is_available: true, sort_order: 2, modifier_groups: [] },
+          { id: "i340", restaurant_id: "r15", category_id: "cat142", name: "Arroz con Mariscos", description: "Saffron rice with shellfish and aji panca", price: 3400, image_url: null, is_available: true, sort_order: 3, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat143", restaurant_id: "r15", name: "Sides", description: null, sort_order: 3, is_available: true,
+        items: [
+          { id: "i341", restaurant_id: "r15", category_id: "cat143", name: "Platano Frito", description: "Crispy fried sweet plantains", price: 1100, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i342", restaurant_id: "r15", category_id: "cat143", name: "Yucca Fries", description: "Crispy fried yucca with aji dipping sauce", price: 1100, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+      {
+        id: "cat144", restaurant_id: "r15", name: "Desserts", description: null, sort_order: 4, is_available: true,
+        items: [
+          { id: "i343", restaurant_id: "r15", category_id: "cat144", name: "Tres Leches Cake", description: "Classic three-milk sponge cake", price: 1300, image_url: null, is_available: true, sort_order: 0, modifier_groups: [] },
+          { id: "i344", restaurant_id: "r15", category_id: "cat144", name: "Mango Panna Cotta", description: "Silky panna cotta with fresh mango", price: 1300, image_url: null, is_available: true, sort_order: 1, modifier_groups: [] },
+        ],
+      },
+    ],
   };
 
-  return menus[slug] || generateGenericMenu(slug);
-}
+  const menu = menus[slug];
+  if (!menu) return [];
 
-function generateGenericMenu(slug: string): MenuCategoryWithItems[] {
-  const restaurant = getMockRestaurants().find((r) => r.slug === slug);
-  if (!restaurant) return [];
+  // Apply food photos round-robin to menu items
+  const photos = menuPhotos[slug];
+  if (photos && photos.length > 0) {
+    let photoIdx = 0;
+    for (const category of menu) {
+      for (const item of category.items) {
+        if (!item.image_url) {
+          item.image_url = photos[photoIdx % photos.length];
+          photoIdx++;
+        }
+      }
+    }
+  }
 
-  return [
-    {
-      id: `cat-${slug}-1`,
-      restaurant_id: restaurant.id,
-      name: "Popular Items",
-      description: null,
-      sort_order: 0,
-      is_available: true,
-      items: [
-        {
-          id: `${slug}-item-1`,
-          restaurant_id: restaurant.id,
-          category_id: `cat-${slug}-1`,
-          name: "House Special",
-          description: `${restaurant.name}'s signature dish`,
-          price: 2200,
-          image_url: null,
-          is_available: true,
-          sort_order: 0,
-          modifier_groups: [],
-        },
-        {
-          id: `${slug}-item-2`,
-          restaurant_id: restaurant.id,
-          category_id: `cat-${slug}-1`,
-          name: "Chef's Selection",
-          description: "Ask about today's special preparation",
-          price: 2800,
-          image_url: null,
-          is_available: true,
-          sort_order: 1,
-          modifier_groups: [],
-        },
-        {
-          id: `${slug}-item-3`,
-          restaurant_id: restaurant.id,
-          category_id: `cat-${slug}-1`,
-          name: "Appetizer Sampler",
-          description: "A selection of our favorite starters",
-          price: 1600,
-          image_url: null,
-          is_available: true,
-          sort_order: 2,
-          modifier_groups: [],
-        },
-      ],
-    },
-  ];
+  return menu;
 }

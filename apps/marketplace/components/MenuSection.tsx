@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type {
   MenuCategoryWithItems,
   MenuItemWithModifiers,
@@ -30,8 +31,8 @@ export function MenuSection({ category, restaurant }: Props) {
             onClick={() => setSelectedItem(item)}
             className="w-full text-left py-4 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors"
           >
-            <div className="flex justify-between items-start">
-              <div className="flex-1 pr-4">
+            <div className="flex justify-between items-start gap-3">
+              <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-900">{item.name}</h3>
                 {item.description && (
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">
@@ -42,21 +43,48 @@ export function MenuSection({ category, restaurant }: Props) {
                   {formatCurrency(item.price)}
                 </p>
               </div>
-              <div className="shrink-0 w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-400 hover:border-brand-500 hover:text-brand-500 transition-colors">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
+              {item.image_url ? (
+                <div className="shrink-0 w-20 h-20 rounded-xl overflow-hidden relative">
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
                   />
-                </svg>
-              </div>
+                  <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-brand-500">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <div className="shrink-0 w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-400 hover:border-brand-500 hover:text-brand-500 transition-colors">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15"
+                    />
+                  </svg>
+                </div>
+              )}
             </div>
           </button>
         ))}

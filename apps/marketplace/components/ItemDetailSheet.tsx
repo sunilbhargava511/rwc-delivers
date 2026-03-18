@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type {
   MenuItemWithModifiers,
   RestaurantWithStatus,
@@ -136,6 +137,18 @@ export function ItemDetailSheet({ item, restaurant, onClose }: Props) {
             />
           </svg>
         </button>
+
+        {item.image_url && (
+          <div className="relative w-full h-48 sm:h-56">
+            <Image
+              src={item.image_url}
+              alt={item.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 512px"
+            />
+          </div>
+        )}
 
         <div className="p-6">
           <h2 className="text-xl font-bold text-gray-900 pr-8">{item.name}</h2>
