@@ -18,7 +18,7 @@ export const restaurantImages: Record<string, { hero: string; gradient: string }
     gradient: 'from-red-800/80 to-yellow-900/80',
   },
   'timber-and-salt': {
-    hero: 'https://img.cdn4dd.com/cdn-cgi/image/fit=cover,width=1000,height=300,format=auto,quality=80/https://doordash-static.s3.amazonaws.com/media/store/header/7a9eafb6-1af5-4b8c-9378-618465e4ddf8.png',
+    hero: 'https://s3-media0.fl.yelpcdn.com/bphoto/3pq3jMqcinNg61KsHgoGmg/l.jpg',
     gradient: 'from-stone-900/80 to-amber-900/80',
   },
   'donato-enoteca': {
@@ -42,7 +42,7 @@ export const restaurantImages: Record<string, { hero: string; gradient: string }
     gradient: 'from-amber-800/80 to-orange-900/80',
   },
   'la-fonda': {
-    hero: 'https://img.cdn4dd.com/cdn-cgi/image/fit=cover,width=1000,height=300,format=auto,quality=80/https://doordash-static.s3.amazonaws.com/media/store/header/ebb44116-2a75-473b-9a52-996ae6c4c4a3.jpg',
+    hero: 'https://s3-media0.fl.yelpcdn.com/bphoto/NA4ed6nOfWEfeCy1MGX4dw/l.jpg',
     gradient: 'from-red-900/80 to-amber-900/80',
   },
   'pizzeria-cardamomo': {
