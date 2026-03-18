@@ -20,7 +20,8 @@ export function MenuSection({ category, restaurant }: Props) {
 
   return (
     <section id={category.id} className="pt-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">{category.name}</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-1">{category.name}</h2>
+      <div className="h-0.5 w-12 bg-brand-500 rounded-full mb-4" />
 
       <div className="divide-y divide-gray-100">
         {category.items.map((item) => (

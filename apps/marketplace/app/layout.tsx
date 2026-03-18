@@ -29,26 +29,34 @@ export default function RootLayout({
       <body className={inter.className}>
         <Header />
         <main className="min-h-screen">{children}</main>
-        <footer className="bg-gray-50 border-t border-gray-200 py-8 mt-16">
+        <footer className="bg-gray-950 text-gray-400 py-12 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-8">
               <div>
-                <p className="text-sm font-semibold text-brand-700">
-                  RWC Delivers
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  A City of Redwood City program supporting independent
-                  restaurants
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">R</span>
+                  </div>
+                  <span className="text-lg font-bold text-white tracking-tight">
+                    RWC Delivers
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 mt-3 max-w-sm leading-relaxed">
+                  A City of Redwood City program supporting independent restaurants.
+                  No hidden fees. No surge pricing. 100% of food revenue goes to restaurants.
                 </p>
               </div>
-              <div className="flex gap-6 text-sm text-gray-500">
-                <a href="/about" className="hover:text-gray-700">
-                  About
+              <div className="flex gap-8 text-sm">
+                <a href="/about" className="hover:text-white transition-colors">
+                  How it Works
                 </a>
-                <a href="/faq" className="hover:text-gray-700">
+                <a href="/faq" className="hover:text-white transition-colors">
                   FAQ
                 </a>
               </div>
+            </div>
+            <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-gray-600">
+              &copy; {new Date().getFullYear()} RWC Delivers &middot; City of Redwood City
             </div>
           </div>
         </footer>
