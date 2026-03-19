@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import type { OrderWithItems, OrderStatus } from "@rwc/shared";
 import { Badge } from "@rwc/ui";
-import { getMockOrders } from "../../lib/mock-data";
 import { OrderCard } from "../../components/OrderCard";
 import { useRealtimeOrders } from "../../hooks/useRealtimeOrders";
 import { useOrderChime } from "../../hooks/useOrderChime";
@@ -58,28 +57,14 @@ export default function OrdersPage() {
   }, [playChime]);
 
   const {
-    orders: realtimeOrders,
+    orders,
     isConnected,
     isLoading,
+    updateOrderLocally,
   } = useRealtimeOrders({
     restaurantId: DEMO_RESTAURANT_ID,
     onNewOrder,
   });
-
-  // Fall back to mock data if no Supabase connection or no orders loaded
-  const [useMock, setUseMock] = useState(false);
-  const [mockOrders, setMockOrders] = useState<OrderWithItems[]>([]);
-
-  useEffect(() => {
-    if (!isLoading && realtimeOrders.length === 0 && !isConnected) {
-      setUseMock(true);
-      setMockOrders(getMockOrders());
-    } else if (realtimeOrders.length > 0) {
-      setUseMock(false);
-    }
-  }, [isLoading, realtimeOrders, isConnected]);
-
-  const orders = useMock ? mockOrders : realtimeOrders;
 
   const columnOrders = useMemo(() => {
     const map: Record<string, OrderWithItems[]> = {};
@@ -101,15 +86,8 @@ export default function OrdersPage() {
   ).length;
 
   async function handleStatusChange(orderId: string, newStatus: OrderStatus) {
-    if (useMock) {
-      // Local-only mock update
-      setMockOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId ? { ...o, status: newStatus } : o
-        )
-      );
-      return;
-    }
+    // Optimistic update — move the card immediately
+    updateOrderLocally(orderId, { status: newStatus });
 
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
@@ -121,7 +99,6 @@ export default function OrdersPage() {
         const data = await res.json();
         console.error("Status update failed:", data.error);
       }
-      // Realtime subscription will handle the UI update
     } catch (err) {
       console.error("Status update failed:", err);
     }
@@ -179,11 +156,11 @@ export default function OrdersPage() {
           <div className="flex items-center gap-1.5 ml-auto">
             <span
               className={`w-2 h-2 rounded-full ${
-                isConnected ? "bg-green-500" : useMock ? "bg-yellow-400" : "bg-red-500"
+                isConnected ? "bg-green-500" : "bg-yellow-400"
               }`}
             />
             <span className="text-xs text-gray-400">
-              {isConnected ? "Live" : useMock ? "Demo" : "Connecting..."}
+              {isConnected ? "Live" : "Polling"}
             </span>
           </div>
         </div>
