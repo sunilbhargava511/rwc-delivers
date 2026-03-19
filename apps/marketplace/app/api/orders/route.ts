@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     const { restaurant_id, items, delivery_address, phone, tip, notes } = body as {
       restaurant_id: string;
-      items: Array<{ menu_item_id: string; quantity: number; unit_price: number; item_name: string; modifiers?: unknown; special_instructions?: string }>;
+      items: Array<{ menu_item_id: string; quantity: number; unit_price: number; name?: string; item_name?: string; modifiers?: unknown; special_instructions?: string }>;
       delivery_address: { street: string; unit?: string; city?: string; zip?: string };
       phone: string;
       tip: number;
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     const cartItems = items.map((item) => ({
       id: item.menu_item_id, // use menu_item_id as client id
       menu_item_id: item.menu_item_id,
-      name: item.item_name,
+      name: item.name || item.item_name || "Unknown Item",
       quantity: item.quantity,
       unit_price: item.unit_price,
       modifiers: (item.modifiers || []) as Array<{ group_name: string; option_name: string; price_delta: number }>,
