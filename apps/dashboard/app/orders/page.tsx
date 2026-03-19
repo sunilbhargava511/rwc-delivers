@@ -139,6 +139,10 @@ export default function OrdersPage() {
     handleStatusChange(orderId, "cancelled");
   }
 
+  function handleStartPreparing(orderId: string) {
+    handleStatusChange(orderId, "preparing");
+  }
+
   function handleMarkReady(orderId: string) {
     handleStatusChange(orderId, "ready_for_pickup");
   }
@@ -222,6 +226,7 @@ export default function OrdersPage() {
                       order={order}
                       onAccept={() => handleAccept(order.id)}
                       onReject={() => handleReject(order.id)}
+                      onStartPreparing={() => handleStartPreparing(order.id)}
                       onMarkReady={() => handleMarkReady(order.id)}
                       onSimulateDelivery={() => handleSimulateDelivery(order.id)}
                       isSimulating={simulatingOrders.has(order.id)}

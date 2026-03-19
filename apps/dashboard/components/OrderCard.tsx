@@ -18,6 +18,7 @@ const CUSTOMER_NAMES: Record<string, string> = {
 interface OrderCardProps {
   order: OrderWithItems;
   onAccept?: () => void;
+  onStartPreparing?: () => void;
   onMarkReady?: () => void;
   onReject?: () => void;
   onSimulateDelivery?: () => void;
@@ -56,6 +57,7 @@ function timeAgo(dateString: string): string {
 export function OrderCard({
   order,
   onAccept,
+  onStartPreparing,
   onMarkReady,
   onReject,
   onSimulateDelivery,
@@ -144,7 +146,18 @@ export function OrderCard({
           </div>
         )}
 
-        {(order.status === "confirmed" || order.status === "preparing") && (
+        {order.status === "confirmed" && (
+          <Button
+            size="sm"
+            variant="primary"
+            className="w-full"
+            onClick={onStartPreparing}
+          >
+            Start Preparing
+          </Button>
+        )}
+
+        {order.status === "preparing" && (
           <Button
             size="sm"
             variant="primary"
