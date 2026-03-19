@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
-import { getMockActiveDeliveries } from "../../lib/mock-data";
 import type { ActiveDelivery } from "../../lib/mock-data";
+import { useActiveDeliveries } from "../../hooks/useActiveDeliveries";
 
 const statusLabels: Record<string, string> = {
   awaiting_driver: "Awaiting Driver",
@@ -31,7 +31,7 @@ function getEtaFromDelivery(delivery: ActiveDelivery): string {
 }
 
 export default function DeliveriesPage() {
-  const deliveries = getMockActiveDeliveries();
+  const { deliveries, isConnected, useMock } = useActiveDeliveries();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>("all");
 
   const filteredDeliveries = deliveries.filter((d) => {
@@ -61,6 +61,10 @@ export default function DeliveriesPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">Active Deliveries</h1>
           <Badge variant="brand">{deliveries.length}</Badge>
+          <div className="flex items-center gap-1.5 ml-2">
+            <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : useMock ? "bg-yellow-400" : "bg-red-500"}`} />
+            <span className="text-xs text-gray-400">{isConnected ? "Live" : useMock ? "Demo" : "Connecting..."}</span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {filters.map((f) => (

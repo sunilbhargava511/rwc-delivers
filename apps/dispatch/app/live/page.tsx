@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { getMockActiveDeliveries, getMockDrivers, getMockAlerts } from "../../lib/mock-data";
-import type { ActiveDelivery, Driver, Alert } from "../../lib/mock-data";
+import { getMockDrivers, getMockAlerts } from "../../lib/mock-data";
+import type { Driver, Alert } from "../../lib/mock-data";
 import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
-import { useRealtimeDeliveries } from "../../hooks/useRealtimeDeliveries";
+import { useActiveDeliveries } from "../../hooks/useActiveDeliveries";
 
 const LiveMapComponent = dynamic(() => import("../../components/LiveMap"), { ssr: false });
 
@@ -53,26 +53,24 @@ function formatEta(minutesRemaining: number): string {
 }
 
 export default function LiveMapPage() {
-  const [deliveries, setDeliveries] = useState<ActiveDelivery[]>([]);
+  const { deliveries, isConnected: realtimeConnected, useMock } = useActiveDeliveries();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const { assignments, isConnected: realtimeConnected } = useRealtimeDeliveries();
 
   const hasMapbox = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-  // Build driver markers from Realtime delivery assignments
+  // Build driver markers from delivery pickup/delivery locations
   const mapDriverMarkers = useMemo(() => {
-    return assignments
-      .filter((a) => a.driver_lat != null && a.driver_lng != null)
-      .map((a) => ({
-        id: a.driver_id,
-        lat: a.driver_lat!,
-        lng: a.driver_lng!,
+    return deliveries
+      .filter((d) => d.driver_id && d.delivery_location)
+      .map((d) => ({
+        id: d.driver_id!,
+        lat: d.delivery_location.lat,
+        lng: d.delivery_location.lng,
       }));
-  }, [assignments]);
+  }, [deliveries]);
 
   useEffect(() => {
-    setDeliveries(getMockActiveDeliveries());
     setDrivers(getMockDrivers());
     setAlerts(getMockAlerts());
   }, []);
@@ -99,8 +97,8 @@ export default function LiveMapPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            Live
+            <span className={`block w-2 h-2 rounded-full ${realtimeConnected ? "bg-green-500 animate-pulse" : useMock ? "bg-yellow-400" : "bg-red-400"}`} />
+            {realtimeConnected ? "Live" : useMock ? "Demo" : "Connecting..."}
           </span>
           <Button variant="outline" size="sm">
             Refresh
