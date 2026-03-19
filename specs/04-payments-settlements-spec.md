@@ -1,7 +1,7 @@
 # Payments & Settlements — App Spec
 
-**Version:** 1.0
-**Date:** March 17, 2026
+**Version:** 2.0
+**Date:** March 18, 2026
 **Status:** Build-Ready Draft
 
 ---
@@ -45,15 +45,16 @@ This is not a standalone app with its own UI — it is a backend system with rep
 
 ### 4.1 Per-Order Flow
 
-When a customer places a $30 order with a $4.50 delivery fee and $5 tip:
+When a customer places a $30 order with a $5.50 delivery fee (San Carlos zone) and $5 tip:
 
 ```
-Customer pays: $39.50
+Customer pays: $40.50
   ├── Food subtotal:    $30.00 → Restaurant
-  ├── Delivery fee:      $4.50 → City Program (driver wages fund)
+  ├── Delivery fee:      $5.50 → City Program (driver wages fund)
   ├── Tip:               $5.00 → Driver
-  └── Stripe fees:      ~$1.45 → Stripe (2.9% + $0.30)
+  └── Stripe fees:      ~$1.47 → Stripe (2.9% + $0.30)
 
+Delivery fee is zone-dependent: $4.00 (Downtown) to $6.50 (Emerald Hills).
 Stripe processing fees are deducted from the city program's portion.
 Restaurant receives 100% of food revenue — no commission.
 ```
@@ -116,7 +117,7 @@ RWC Delivers Platform Account (City of Redwood City)
 1. Customer clicks "Place Order" on Marketplace
 2. Frontend calls POST /api/orders
 3. Backend:
-   a. Validates order (items, prices, delivery zone)
+   a. Validates order (items, prices, identifies delivery zone, applies zone fee)
    b. Creates Stripe PaymentIntent (charge immediately, not authorize-then-capture):
       - amount: total (subtotal + delivery fee + tip)
       - application_fee_amount: delivery fee + tip (goes to platform)
@@ -264,7 +265,7 @@ Stripe Connect handles payouts automatically:
 |--------|------|-------------|
 | GET | `/api/admin/economics/overview` | Platform-wide financials |
 | GET | `/api/admin/economics/revenue` | Subscription + delivery fee revenue |
-| GET | `/api/admin/economics/costs` | Driver wages, Onfleet, Stripe fees, hosting |
+| GET | `/api/admin/economics/costs` | Driver wages, Shipday, Stripe fees, hosting |
 | GET | `/api/admin/economics/sustainability` | Break-even tracking, projections |
 | GET | `/api/admin/tips/summary` | Tips by driver by shift (for payroll) |
 | POST | `/api/admin/tips/mark-paid` | Mark tips as processed through payroll |
@@ -283,7 +284,7 @@ Stripe Connect handles payouts automatically:
 ### 9.2 Program Economics (in Admin UI)
 
 - **Revenue dashboard:** Monthly subscription revenue + delivery fee revenue
-- **Cost dashboard:** Driver wages, Onfleet costs, Stripe fees, hosting/infra
+- **Cost dashboard:** Driver wages, Shipday costs (~$147/mo), Stripe fees, hosting/infra
 - **Sustainability gauge:** Revenue vs. costs, break-even progress
 - **City investment tracker:** How much city subsidy remains, projected exhaustion date
 - **ROI calculator:** "$X kept in local economy" — the headline number for council reporting

@@ -1,6 +1,9 @@
 import { createServerClient } from "../client";
-import type { CartItem, OrderStatus, OrderWithItems, SelectedModifier } from "@rwc/shared";
-import { DELIVERY_FEE, canTransition, formatOrderNumber } from "@rwc/shared";
+import type { Database } from "../types";
+import type { CartItem, OrderStatus, OrderWithItems, Address, Restaurant } from "@rwc/shared";
+import { DELIVERY_FEE, canTransition, formatOrderNumber, isActive } from "@rwc/shared";
+
+type Json = Database["public"]["Tables"]["order_items"]["Insert"]["modifiers"];
 
 interface CreateOrderInput {
   customer_id: string;
@@ -55,7 +58,7 @@ export async function createOrder(input: CreateOrderInput): Promise<string> {
     item_name: item.name,
     quantity: item.quantity,
     unit_price: item.unit_price,
-    modifiers: item.modifiers as unknown as SelectedModifier[],
+    modifiers: item.modifiers as unknown as Json,
     special_instructions: item.special_instructions || null,
   }));
 
@@ -90,11 +93,20 @@ export async function getOrder(orderId: string): Promise<OrderWithItems | null> 
     .eq("id", order.restaurant_id)
     .single();
 
+  // Fetch delivery assignment with driver info if exists
+  const { data: assignment } = await supabase
+    .from("delivery_assignments")
+    .select("*, drivers(*)")
+    .eq("order_id", orderId)
+    .order("assigned_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   return {
     ...(order as any),
     items: (items || []) as any[],
     restaurant: restaurant as any,
-    delivery_assignment: null,
+    delivery_assignment: assignment ?? null,
   };
 }
 
@@ -122,7 +134,7 @@ export async function updateOrderStatus(
     );
   }
 
-  const update: Record<string, unknown> = { status };
+  const update: Database["public"]["Tables"]["orders"]["Update"] = { status };
   if (status === "delivered") {
     update.delivered_at = new Date().toISOString();
   }
@@ -133,4 +145,119 @@ export async function updateOrderStatus(
     .eq("id", orderId);
 
   if (error) throw error;
+}
+
+export async function getOrdersByRestaurant(
+  restaurantId: string,
+  statuses?: OrderStatus[]
+): Promise<OrderWithItems[]> {
+  const supabase = createServerClient();
+
+  const isAll = restaurantId === "all";
+
+  let query = supabase
+    .from("orders")
+    .select("*")
+    .order("placed_at", { ascending: false });
+
+  if (!isAll) {
+    query = query.eq("restaurant_id", restaurantId);
+  }
+
+  if (statuses && statuses.length > 0) {
+    query = query.in("status", statuses);
+  }
+
+  const { data: orders, error } = await query;
+  if (error) throw error;
+  if (!orders || orders.length === 0) return [];
+
+  // Fetch items for all orders in one query
+  const orderIds = orders.map((o) => o.id);
+  const { data: allItems } = await supabase
+    .from("order_items")
+    .select("*")
+    .in("order_id", orderIds);
+
+  // Fetch restaurants for these orders
+  const restaurantIds = [...new Set(orders.map((o) => o.restaurant_id))];
+  const { data: restaurants } = await supabase
+    .from("restaurants")
+    .select("*")
+    .in("id", restaurantIds);
+
+  const restaurantMap = new Map<string, any>();
+  for (const r of restaurants || []) {
+    restaurantMap.set(r.id, r);
+  }
+
+  // Fetch delivery assignments for these orders
+  const { data: assignments } = await supabase
+    .from("delivery_assignments")
+    .select("*, drivers(*)")
+    .in("order_id", orderIds);
+
+  const itemsByOrder = new Map<string, any[]>();
+  for (const item of allItems || []) {
+    const list = itemsByOrder.get(item.order_id) || [];
+    list.push(item);
+    itemsByOrder.set(item.order_id, list);
+  }
+
+  const assignmentByOrder = new Map<string, any>();
+  for (const a of assignments || []) {
+    assignmentByOrder.set(a.order_id, a);
+  }
+
+  return orders.map((order) => ({
+    ...(order as any),
+    items: (itemsByOrder.get(order.id) || []) as any[],
+    restaurant: restaurantMap.get(order.restaurant_id) ?? null,
+    delivery_assignment: assignmentByOrder.get(order.id) ?? null,
+  }));
+}
+
+export async function getOrderWithAddress(
+  orderId: string
+): Promise<{
+  order: OrderWithItems;
+  delivery_address: Address;
+  restaurant: Restaurant;
+} | null> {
+  const supabase = createServerClient();
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .single();
+
+  if (error || !order) return null;
+
+  const [{ data: items }, { data: restaurant }, { data: address }, { data: assignment }] =
+    await Promise.all([
+      supabase.from("order_items").select("*").eq("order_id", orderId),
+      supabase.from("restaurants").select("*").eq("id", order.restaurant_id).single(),
+      supabase.from("addresses").select("*").eq("id", order.delivery_address_id).single(),
+      supabase
+        .from("delivery_assignments")
+        .select("*, drivers(*)")
+        .eq("order_id", orderId)
+        .order("assigned_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+  if (!restaurant || !address) return null;
+
+  return {
+    order: {
+      ...(order as any),
+      items: (items || []) as any[],
+      restaurant: restaurant as any,
+      delivery_assignment: assignment ?? null,
+    },
+    delivery_address: address as any,
+    restaurant: restaurant as any,
+  };
 }

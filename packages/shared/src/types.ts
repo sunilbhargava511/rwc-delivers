@@ -116,7 +116,7 @@ export interface Order {
   tip: number; // cents
   total: number; // cents
   stripe_payment_intent_id: string | null;
-  onfleet_task_id: string | null;
+  shipday_order_id: string | null;
   estimated_delivery_at: string | null;
   placed_at: string;
   delivered_at: string | null;
@@ -143,8 +143,15 @@ export interface SelectedModifier {
 export interface DeliveryZone {
   id: string;
   name: string;
+  slug: string | null;
   polygon: { type: 'Polygon'; coordinates: number[][][] };
+  delivery_fee: number; // cents
+  estimated_delivery_minutes: number;
+  batch_order_threshold: number | null;
+  batch_time_cap_minutes: number | null;
+  radius_miles: number | null;
   is_active: boolean;
+  sort_order: number;
   created_at: string;
 }
 
@@ -154,7 +161,9 @@ export interface Driver {
   phone: string;
   email: string | null;
   is_active: boolean;
-  onfleet_worker_id: string | null;
+  shipday_driver_id: string | null;
+  type: 'city_driver' | 'courier_partner';
+  hired_at: string | null;
   created_at: string;
 }
 
@@ -162,10 +171,20 @@ export interface DeliveryAssignment {
   id: string;
   order_id: string;
   driver_id: string;
-  onfleet_task_id: string | null;
+  zone_id: string | null;
+  batch_id: string | null;
+  shipday_order_id: string | null;
+  driver_name: string | null;
+  driver_phone: string | null;
   assigned_at: string;
   picked_up_at: string | null;
   delivered_at: string | null;
+  estimated_pickup_at: string | null;
+  estimated_delivery_at: string | null;
+  tracking_url: string | null;
+  delivery_photo_url: string | null;
+  is_batched: boolean;
+  status: 'queued' | 'assigned' | 'en_route_to_pickup' | 'at_pickup' | 'en_route_to_delivery' | 'delivered' | 'failed';
   driver_lat: number | null;
   driver_lng: number | null;
 }

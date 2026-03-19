@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMockRestaurants, getMockMenu } from "../../../../lib/mock-data";
+import { getRestaurantBySlug, getRestaurantMenu } from "@rwc/db";
 
 export async function GET(
   _request: Request,
@@ -7,15 +7,13 @@ export async function GET(
 ) {
   const { slug } = await params;
 
-  // In production: const restaurant = await getRestaurantBySlug(slug);
-  const restaurant = getMockRestaurants().find((r) => r.slug === slug);
+  const restaurant = await getRestaurantBySlug(slug);
 
   if (!restaurant) {
     return NextResponse.json({ error: "Restaurant not found" }, { status: 404 });
   }
 
-  // In production: const menu = await getRestaurantMenu(restaurant.id);
-  const menu = getMockMenu(slug);
+  const menu = await getRestaurantMenu(restaurant.id);
 
   return NextResponse.json({ restaurant, menu });
 }

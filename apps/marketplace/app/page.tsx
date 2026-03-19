@@ -1,10 +1,10 @@
 import { RestaurantFilters } from "../components/RestaurantFilters";
 import { CartDrawer } from "../components/CartDrawer";
-import { getMockRestaurants } from "../lib/mock-data";
+import { getRestaurants } from "@rwc/db";
 import { formatCurrency, DELIVERY_FEE } from "@rwc/shared";
 
 export default async function HomePage() {
-  const restaurants = getMockRestaurants();
+  const restaurants = await getRestaurants();
   const openCount = restaurants.filter((r) => r.is_open).length;
 
   return (

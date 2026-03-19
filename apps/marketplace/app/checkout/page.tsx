@@ -10,6 +10,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const {
     items,
+    restaurantId,
     restaurantName,
     tip,
     setTip,
@@ -48,19 +49,47 @@ export default function CheckoutPage() {
   const total = getTotal();
 
   async function handlePlaceOrder() {
-    if (!form.phone || !form.street) return;
+    if (!form.phone || !form.street || !restaurantId) return;
 
     setLoading(true);
     try {
-      // In production: POST to /api/orders with Stripe PaymentIntent
-      // For dev mode: simulate order creation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          restaurant_id: restaurantId,
+          items: items.map((item) => ({
+            id: item.id,
+            menu_item_id: item.menu_item_id,
+            name: item.name,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            modifiers: item.modifiers,
+            special_instructions: item.special_instructions,
+            line_total: item.line_total,
+          })),
+          delivery_address: {
+            street: form.street,
+            unit: form.unit,
+            city: form.city,
+            zip: form.zip,
+          },
+          phone: form.phone,
+          tip,
+          notes: form.notes,
+        }),
+      });
 
-      // Generate mock order ID
-      const orderId = `mock-${Date.now()}`;
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Failed to place order");
+      }
+
+      const data = await response.json();
       clearCart();
-      router.push(`/orders/${orderId}`);
-    } catch {
+      router.push(`/orders/${data.id}`);
+    } catch (error) {
+      console.error("Order failed:", error);
       setLoading(false);
     }
   }

@@ -24,7 +24,7 @@ specs/           → 5 spec documents (architecture, marketplace, dashboard, dis
 - **Monorepo:** Turborepo + pnpm workspaces
 - **Database:** Supabase (PostgreSQL + auth + realtime)
 - **Payments:** Stripe Connect (planned)
-- **Delivery:** Onfleet integration (planned)
+- **Delivery:** Shipday integration (planned)
 - **Deploy:** Railway (3 services)
 
 ## Conventions
@@ -65,7 +65,7 @@ Push to `main` triggers auto-deploy on all services.
 - Supabase database connection (queries exist in @rwc/db but not wired to apps)
 - Authentication (Supabase Auth + Twilio SMS OTP)
 - Stripe Connect payments & settlement
-- Onfleet delivery integration
+- Shipday delivery integration
 - Real-time order updates (Supabase realtime subscriptions)
 - Push notifications
 - Admin/analytics dashboard (PostHog)

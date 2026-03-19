@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { OrderWithItems, OrderStatus } from "@rwc/shared";
 import { Badge } from "@rwc/ui";
 import { getMockOrders } from "../../lib/mock-data";
 import { OrderCard } from "../../components/OrderCard";
+import { useRealtimeOrders } from "../../hooks/useRealtimeOrders";
+import { useOrderChime } from "../../hooks/useOrderChime";
 
 interface KanbanColumn {
   key: string;
@@ -45,8 +47,39 @@ const COLUMNS: KanbanColumn[] = [
   },
 ];
 
+// TODO: Replace with authenticated restaurant ID once auth is wired
+// "all" = show orders from every restaurant (demo mode)
+const DEMO_RESTAURANT_ID = "all";
+
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<OrderWithItems[]>(() => getMockOrders());
+  const { playChime } = useOrderChime();
+  const onNewOrder = useCallback(() => {
+    playChime();
+  }, [playChime]);
+
+  const {
+    orders: realtimeOrders,
+    isConnected,
+    isLoading,
+  } = useRealtimeOrders({
+    restaurantId: DEMO_RESTAURANT_ID,
+    onNewOrder,
+  });
+
+  // Fall back to mock data if no Supabase connection or no orders loaded
+  const [useMock, setUseMock] = useState(false);
+  const [mockOrders, setMockOrders] = useState<OrderWithItems[]>([]);
+
+  useEffect(() => {
+    if (!isLoading && realtimeOrders.length === 0 && !isConnected) {
+      setUseMock(true);
+      setMockOrders(getMockOrders());
+    } else if (realtimeOrders.length > 0) {
+      setUseMock(false);
+    }
+  }, [isLoading, realtimeOrders, isConnected]);
+
+  const orders = useMock ? mockOrders : realtimeOrders;
 
   const columnOrders = useMemo(() => {
     const map: Record<string, OrderWithItems[]> = {};
@@ -67,30 +100,68 @@ export default function OrdersPage() {
       o.status !== "cancelled"
   ).length;
 
+  async function handleStatusChange(orderId: string, newStatus: OrderStatus) {
+    if (useMock) {
+      // Local-only mock update
+      setMockOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: newStatus } : o
+        )
+      );
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        console.error("Status update failed:", data.error);
+      }
+      // Realtime subscription will handle the UI update
+    } catch (err) {
+      console.error("Status update failed:", err);
+    }
+  }
+
+  const [simulatingOrders, setSimulatingOrders] = useState<Set<string>>(
+    new Set()
+  );
+
   function handleAccept(orderId: string) {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId ? { ...o, status: "confirmed" as OrderStatus } : o
-      )
-    );
+    handleStatusChange(orderId, "confirmed");
   }
 
   function handleReject(orderId: string) {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId ? { ...o, status: "cancelled" as OrderStatus } : o
-      )
-    );
+    handleStatusChange(orderId, "cancelled");
   }
 
   function handleMarkReady(orderId: string) {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: "ready_for_pickup" as OrderStatus }
-          : o
-      )
-    );
+    handleStatusChange(orderId, "ready_for_pickup");
+  }
+
+  async function handleSimulateDelivery(orderId: string) {
+    setSimulatingOrders((prev) => new Set(prev).add(orderId));
+    try {
+      const res = await fetch(`/api/orders/${orderId}/simulate-delivery`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        console.error("Simulate delivery failed:", data.error);
+      }
+    } catch (err) {
+      console.error("Simulate delivery failed:", err);
+    } finally {
+      setSimulatingOrders((prev) => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+    }
   }
 
   return (
@@ -100,6 +171,17 @@ export default function OrdersPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
           <Badge variant="brand">{activeCount} active</Badge>
+          {/* Connection status indicator */}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isConnected ? "bg-green-500" : useMock ? "bg-yellow-400" : "bg-red-500"
+              }`}
+            />
+            <span className="text-xs text-gray-400">
+              {isConnected ? "Live" : useMock ? "Demo" : "Connecting..."}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -141,6 +223,8 @@ export default function OrdersPage() {
                       onAccept={() => handleAccept(order.id)}
                       onReject={() => handleReject(order.id)}
                       onMarkReady={() => handleMarkReady(order.id)}
+                      onSimulateDelivery={() => handleSimulateDelivery(order.id)}
+                      isSimulating={simulatingOrders.has(order.id)}
                     />
                   ))}
                 </div>

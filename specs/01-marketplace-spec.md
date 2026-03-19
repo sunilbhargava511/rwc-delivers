@@ -1,7 +1,7 @@
 # RWC Delivers Marketplace — App Spec
 
-**Version:** 1.0
-**Date:** March 17, 2026
+**Version:** 2.0
+**Date:** March 18, 2026
 **Status:** Build-Ready Draft
 
 ---
@@ -19,7 +19,7 @@ The RWC Delivers Marketplace is the customer-facing web application (progressive
 
 - Provide a simple, fast ordering experience that beats DoorDash on price transparency (no hidden fees, no surge pricing)
 - Showcase independent Redwood City restaurants with personality — not a generic grid of logos
-- Drive repeat usage through a clean UX, fair pricing ($4–5 delivery fee), and civic pride messaging
+- Drive repeat usage through a clean UX, fair pricing ($4–6.50 zone-based delivery fee), and civic pride messaging
 - Collect first-party customer data that belongs to the restaurants, not the platform
 
 ---
@@ -35,7 +35,7 @@ The RWC Delivers Marketplace is the customer-facing web application (progressive
 | Database | Supabase (PostgreSQL) | Row-level security, real-time, auth built in |
 | Auth | Supabase Auth (phone OTP) | No passwords to remember for quick ordering. Email is optional (for receipts/account upgrade). |
 | Payments | Stripe Checkout + Stripe Connect | PCI-compliant, handles restaurant payouts |
-| Real-time tracking | Onfleet webhooks → Supabase Realtime | Live driver location on order status page |
+| Real-time tracking | Shipday webhooks → Supabase Realtime | Live driver location on order status page |
 | Hosting | Vercel | Auto-scaling, edge CDN, zero-config deploys |
 | Analytics | PostHog (self-hosted or cloud) | Privacy-friendly, city-owned data |
 
@@ -49,9 +49,9 @@ The RWC Delivers Marketplace is the customer-facing web application (progressive
 Landing Page → Restaurant List → Restaurant Page → Menu
 ```
 
-- **Landing page:** Hero with "Order from Redwood City's best independents" + city branding. Shows currently-open restaurants first, with estimated delivery times.
+- **Landing page:** Hero with "Order from Redwood City's best independents" + city branding. Shows currently-open restaurants first, with estimated delivery times (zone-dependent based on customer's saved or entered address).
 - **Restaurant list:** Card grid showing: restaurant name, cuisine tag, photo, rating, delivery estimate, open/closed status. Filter by: cuisine type, currently open, delivery time. Sort by: distance, rating, delivery time.
-- **Restaurant page:** Banner photo, description (written by the owner), full menu organized by category, hours, delivery zone note.
+- **Restaurant page:** Banner photo, description (written by the owner), full menu organized by category, hours, delivery area note (covers 4 zones up to 7 miles).
 
 ### 4.2 Ordering
 
@@ -60,8 +60,8 @@ Add Items → Cart Review → Checkout → Order Confirmation
 ```
 
 - **Add to cart:** Tap item → modifier/customization sheet (size, add-ons, special instructions) → add to cart. Cart persists across restaurant pages but warns if switching restaurants ("This will clear your current cart from La Viga").
-- **Cart review:** Line items with quantities, modifiers, and prices. Subtotal + delivery fee ($4–5) clearly shown. No service fee. No surge pricing. Tip option (default suggestions: $3, $5, $7, custom).
-- **Checkout:** Delivery address (with validation against delivery zone — downtown RWC + buffer). Payment via Stripe (saved cards for returning users). Estimated delivery time shown before confirming. Phone number required (for driver contact).
+- **Cart review:** Line items with quantities, modifiers, and prices. Subtotal + delivery fee ($4.00–$6.50, zone-dependent) clearly shown. No service fee. No surge pricing. Tip option (default suggestions: $3, $5, $7, custom).
+- **Checkout:** Delivery address (with validation against delivery zones — 4 zones covering 5–7 mile radius). Zone-specific delivery fee and estimated delivery time shown before confirming. Payment via Stripe (saved cards for returning users). Phone number required (for driver contact).
 - **Order confirmation:** Order number, estimated delivery time, link to real-time tracking page.
 
 ### 4.3 Order Tracking
@@ -70,8 +70,8 @@ Add Items → Cart Review → Checkout → Order Confirmation
 Order Confirmed → Preparing → Driver En Route → Delivered
 ```
 
-- Real-time status updates via Supabase Realtime (sourced from Restaurant Dashboard + Onfleet webhooks).
-- Map view showing driver location when en route (Onfleet tracking link embedded or custom map via Mapbox).
+- Real-time status updates via Supabase Realtime (sourced from Restaurant Dashboard + Shipday webhooks).
+- Map view showing driver location when en route (Shipday tracking URL embedded or custom map via Mapbox).
 - Push notification support (via service worker) for status transitions.
 - SMS fallback for status updates (via Twilio, triggered by webhook).
 
@@ -126,11 +126,12 @@ Order Confirmed → Preparing → Driver En Route → Delivered
 | status | enum | `placed`, `confirmed`, `preparing`, `ready_for_pickup`, `driver_assigned`, `en_route`, `delivered`, `cancelled` |
 | delivery_address_id | uuid (FK) | → addresses.id |
 | subtotal | integer | Cents |
-| delivery_fee | integer | Cents (400–500) |
+| delivery_fee | integer | Cents (400–650, zone-dependent) |
 | tip | integer | Cents |
 | total | integer | Cents |
 | stripe_payment_intent_id | text | |
-| onfleet_task_id | text | |
+| zone_id | uuid (FK) | → delivery_zones.id |
+| shipday_order_id | text | |
 | estimated_delivery_at | timestamptz | |
 | placed_at | timestamptz | |
 | delivered_at | timestamptz | Nullable |
@@ -165,7 +166,7 @@ Order Confirmed → Preparing → Driver En Route → Delivered
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/orders` | Place a new order (validates zone, creates Stripe PaymentIntent). Note: Onfleet task is NOT created here — it is created when the restaurant accepts the order via the Dashboard. |
+| POST | `/api/orders` | Place a new order (validates zone, applies zone fee, creates Stripe PaymentIntent). Note: Shipday order is NOT created here — it is created when the dispatch engine triggers (after restaurant accepts). |
 | GET | `/api/orders/[id]` | Get order detail + current status |
 | GET | `/api/orders` | List customer's order history |
 | POST | `/api/orders/[id]/cancel` | Cancel order (only if status = `placed`) |
@@ -175,7 +176,7 @@ Order Confirmed → Preparing → Driver En Route → Delivered
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/api/webhooks/stripe` | Payment confirmation/failure |
-| POST | `/api/webhooks/onfleet` | Delivery status updates → writes to orders table |
+| POST | `/api/webhooks/shipday` | Delivery status updates → writes to orders table |
 
 ### Auth
 
@@ -202,25 +203,47 @@ Order Confirmed → Preparing → Driver En Route → Delivered
 
 ## 8. Delivery Zone Validation
 
-The delivery zone covers downtown Redwood City and surrounding neighborhoods within a ~3-mile radius. Zone is defined as a GeoJSON polygon stored in the `delivery_zones` table:
+The delivery area covers a 5–7 mile radius from downtown Redwood City, divided into four zones. Each zone has its own delivery fee and estimated delivery time. Multiple zones are active simultaneously.
 
 ### `delivery_zones`
 
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid (PK) | |
-| name | text | e.g., "Downtown RWC" |
+| name | text | e.g., "Downtown RWC", "San Carlos" |
+| slug | text | e.g., "downtown", "san-carlos" |
 | polygon | jsonb | GeoJSON Polygon geometry |
-| is_active | boolean | Allow multiple zones, activate one |
+| delivery_fee | integer | Cents (e.g., 400 = $4.00) |
+| estimated_delivery_minutes | integer | Base estimate for this zone |
+| radius_miles | decimal | Approximate distance from downtown |
+| is_active | boolean | Multiple zones can be active simultaneously |
+| sort_order | integer | Display order |
 | created_at | timestamptz | |
 
-**Address validation flow:**
+### Zone Definitions
+
+| Zone | Area | Delivery Fee | Est. Time |
+|------|------|-------------|-----------|
+| A | Downtown RWC (<2 mi) | $4.00 | 20–25 min |
+| B | San Carlos (3–5 mi) | $5.50 | 28–35 min |
+| C | North Fair Oaks (3–4 mi) | $5.00 | 25–30 min |
+| D | Emerald Hills / Woodside (5–7 mi) | $6.50 | 35–45 min |
+
+### Address validation flow
 
 1. Customer enters address
 2. Geocode via Mapbox Geocoding API → get lat/lng
-3. Point-in-polygon check against active delivery zone GeoJSON (use PostGIS `ST_Contains` or JS library `@turf/boolean-point-in-polygon`)
-4. If outside zone: show friendly message ("We're currently delivering within downtown Redwood City. We're expanding soon!")
-5. If inside: proceed to checkout
+3. Point-in-polygon check against **all active** delivery zone GeoJSONs (use PostGIS `ST_Contains` or JS library `@turf/boolean-point-in-polygon`)
+4. If outside all zones: show friendly message ("We're currently delivering within the Redwood City area. We're expanding soon!")
+5. If inside a zone: apply that zone's delivery fee and estimated time, proceed to checkout
+6. If inside multiple overlapping zones: use the zone with the lowest delivery fee (best for customer)
+
+### Checkout display
+
+When zone is identified, the checkout page shows:
+- "Delivery to [Zone Name]" (e.g., "Delivery to San Carlos")
+- Zone-specific delivery fee (e.g., "$5.50")
+- Zone-specific estimated time (e.g., "28–35 min")
 
 **Restaurant open/closed logic:** A restaurant is "open" when all three conditions are true: (a) `restaurants.is_active = true`, (b) current time falls within `restaurant_hours` for today's `day_of_week`, (c) today's date does not fall within any `restaurant_closures` range. This check runs as a Supabase database function `is_restaurant_open(restaurant_id)` called by the Marketplace and cached for 1 minute.
 
@@ -253,7 +276,8 @@ Native apps can be considered for v2 if adoption warrants the investment.
 
 ## 11. Open Questions
 
-- [ ] Exact delivery zone polygon — needs input from city on which neighborhoods to include
+- [x] ~~Delivery zone model~~ → 4 zones, 5–7 mile radius, zone-dependent fees (resolved)
+- [ ] Exact zone polygons (GeoJSON) — needs input from city on boundaries
 - [ ] Tip distribution model — 100% to driver, or pooled across shift?
 - [ ] Multi-restaurant orders — support in v1 or defer?
 - [ ] Scheduled/future orders — support in v1 or delivery-now only?

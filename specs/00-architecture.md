@@ -1,7 +1,7 @@
 # RWC Delivers — System Architecture
 
-**Version:** 1.0
-**Date:** March 17, 2026
+**Version:** 2.0
+**Date:** March 18, 2026
 **Status:** Build-Ready Draft
 
 ---
@@ -49,7 +49,7 @@ The architecture prioritizes three things: low operational overhead (the city is
 │   │  /api/dashboard/*      Restaurant dashboard endpoints        │ │
 │   │  /api/admin/*          Program coordinator endpoints         │ │
 │   │  /api/payments/*       Payment intent creation               │ │
-│   │  /api/webhooks/*       Stripe + Onfleet webhook receivers    │ │
+│   │  /api/webhooks/*       Stripe + Shipday webhook receivers    │ │
 │   └──────────────────────────┬────────────────────────────────────┘ │
 └──────────────────────────────┼──────────────────────────────────────┘
                                │
@@ -71,12 +71,12 @@ The architecture prioritizes three things: low operational overhead (the city is
 │                    THIRD-PARTY SERVICES                              │
 │                                                                     │
 │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
-│   │    Stripe     │  │   Onfleet    │  │   Twilio     │             │
+│   │    Stripe     │  │   Shipday    │  │   Twilio     │             │
 │   │   Connect     │  │              │  │              │             │
-│   │              │  │  • Dispatch   │  │  • SMS OTP   │             │
-│   │  • Payments  │  │  • Routing    │  │  • Order     │             │
-│   │  • Payouts   │  │  • Driver App │  │    alerts    │             │
-│   │  • Billing   │  │  • Tracking   │  │              │             │
+│   │              │  │  • Driver App │  │  • SMS OTP   │             │
+│   │  • Payments  │  │  • GPS Track  │  │  • Order     │             │
+│   │  • Payouts   │  │  • Proof of   │  │    alerts    │             │
+│   │  • Billing   │  │    Delivery   │  │              │             │
 │   └──────────────┘  └──────────────┘  └──────────────┘             │
 │                                                                     │
 │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
@@ -136,7 +136,7 @@ rwc-delivers/
 │   │   ├── subscriptions.ts  # Subscription management
 │   │   └── webhooks.ts       # Webhook handler logic
 │   └── shared/               # Constants, utils, types
-│       ├── constants.ts      # Delivery fee, zone config, etc.
+│       ├── constants.ts      # Zone-dependent delivery fees, zone config, etc.
 │       ├── order-status.ts   # Status enum + transition rules
 │       └── utils.ts          # Date formatting, currency, etc.
 ├── supabase/
@@ -181,7 +181,7 @@ orders ──────────────────┤ (FK: customer_i
 drivers ─────────────────┤ (stable identity for all delivery drivers)
   └── driver_shifts      │ (FK: driver_id)
                          │
-delivery_zones ──────────┘ (GeoJSON polygon for address validation)
+delivery_zones ──────────┘ (multiple active zones, each with GeoJSON polygon, fee, batch triggers)
 dispatch_events ─────────  (FK: order_id, event log)
 ```
 
@@ -219,8 +219,9 @@ This is the central flow that connects all four apps. Each step shows which app 
 Step 1: CUSTOMER PLACES ORDER
 ├── App: Marketplace
 ├── Actions:
-│   • Validate items, prices, delivery zone
-│   • Create order record (status: placed)
+│   • Validate items, prices, identify delivery zone
+│   • Apply zone-specific delivery fee and ETA
+│   • Create order record (status: placed, zone_id set)
 │   • Create Stripe PaymentIntent (charge immediately — refund if cancelled)
 │   • Return confirmation to customer
 └── Data: orders, order_items, payments (status: succeeded)
@@ -232,30 +233,31 @@ Step 2: RESTAURANT RECEIVES & ACCEPTS ORDER
 │   • Restaurant staff reviews and accepts
 │   • Sets prep time estimate
 │   • Order status → confirmed
-└── Triggers: Onfleet task creation (Dispatch)
+│   • Order enters zone dispatch queue
+└── Triggers: Dispatch engine evaluates zone batch triggers
 
 Step 3: DRIVER ASSIGNED
-├── App: Delivery Dispatch (Onfleet auto-assignment)
+├── App: Delivery Dispatch (custom zone batching engine)
 ├── Actions:
-│   • Onfleet assigns optimal driver
-│   • Webhook: taskAssigned → our API
+│   • Zone A: immediate dispatch; Zones B/C/D: batch trigger fires
+│   • Dispatch app selects driver and creates Shipday order (assigned to specific driver)
 │   • Create delivery_assignment record
 │   • Order status → driver_assigned
 └── Data visible in: Marketplace (tracking), Dashboard (driver info)
 
 Step 4: DRIVER PICKS UP ORDER
-├── App: Delivery Dispatch (Onfleet driver app)
+├── App: Delivery Dispatch (Shipday driver app)
 ├── Actions:
 │   • Driver arrives at restaurant, marks pickup
-│   • Webhook: taskStarted → our API
+│   • Shipday webhook → our API
 │   • Order status → en_route
-└── Data visible in: Marketplace (live tracking map)
+└── Data visible in: Marketplace (live tracking map via Shipday)
 
 Step 5: ORDER DELIVERED
-├── App: Delivery Dispatch (Onfleet driver app)
+├── App: Delivery Dispatch (Shipday driver app)
 ├── Actions:
 │   • Driver marks delivery complete (optional photo)
-│   • Webhook: taskCompleted → our API
+│   • Shipday webhook → our API
 │   • Order status → delivered
 │   • Record tip for driver payroll
 │   • (Payment already captured at checkout — no action needed)
@@ -281,7 +283,7 @@ Supabase Realtime is the backbone that keeps all apps in sync without polling:
 |-------|----------|-----------|---------|
 | New order placed | Marketplace | Restaurant Dashboard | `orders:restaurant_id=X` |
 | Order status change | Dashboard / Webhooks | Marketplace, Dashboard, Dispatch | `orders:id=X` |
-| Driver location update | Onfleet webhook | Marketplace (tracking page) | `delivery_assignments:order_id=X` |
+| Driver location update | Shipday webhook | Marketplace (tracking page) | `delivery_assignments:order_id=X` |
 | Menu item 86'd | Dashboard | Marketplace | `menu_items:restaurant_id=X` |
 | Restaurant goes offline | Dashboard | Marketplace | `restaurants:id=X` |
 
@@ -301,20 +303,20 @@ POST /api/webhooks/stripe
   ├── invoice.payment_failed → Alert Program Coordinator
   └── account.updated → Update restaurant payment-ready status
 
-POST /api/webhooks/onfleet
-  ├── taskAssigned → Update order: driver_assigned
-  ├── workerArrived → Update order: driver at restaurant
-  ├── taskStarted → Update order: en_route
-  ├── taskCompleted → Update order: delivered, trigger payment capture
-  ├── taskFailed → Alert coordinator, reassign
-  └── taskDelayed → Update ETAs
+POST /api/webhooks/shipday
+  ├── order.assigned → Update order: driver_assigned
+  ├── driver.arrived → Update order: driver at restaurant
+  ├── order.pickedup → Update order: en_route
+  ├── order.delivered → Update order: delivered
+  ├── order.failed → Alert coordinator, reassign
+  └── driver.location → Update tracking data
 ```
 
 **Webhook reliability:**
-- Verify signatures (Stripe: `stripe-signature` header; Onfleet: HMAC)
-- Idempotent handlers (use Stripe event ID / Onfleet task ID to deduplicate)
+- Verify signatures (Stripe: `stripe-signature` header; Shipday: webhook secret)
+- Idempotent handlers (use Stripe event ID / Shipday order ID to deduplicate)
 - Log all webhook events to `dispatch_events` table for debugging
-- Stripe retries failed webhooks automatically; Onfleet has similar retry logic
+- Stripe retries failed webhooks automatically; Shipday has similar retry logic
 
 ---
 
@@ -348,7 +350,7 @@ POST /api/webhooks/onfleet
 - Rate limiting via Vercel's built-in edge rate limiter:
   - `POST /api/orders`: max 5 per customer per hour, max 1 per second per IP
   - `POST /api/auth/otp/send`: max 3 per phone number per 10 minutes (prevents SMS abuse)
-  - Webhook endpoints: no rate limit (Stripe/Onfleet control their own send rate)
+  - Webhook endpoints: no rate limit (Stripe/Shipday control their own send rate)
   - All other authenticated endpoints: max 60 requests per minute per user
 
 ---
@@ -360,14 +362,14 @@ POST /api/webhooks/onfleet
 | **Supabase** (Pro) | Database, auth, realtime, storage | All apps | $25/mo |
 | **Vercel** (Pro) | Hosting, CDN, serverless functions | All apps | $20/mo |
 | **Stripe** | Payments, Connect, Billing | Payments system | ~2.9% + $0.30/txn |
-| **Onfleet** | Delivery dispatch, driver app, tracking | Dispatch | $500–800/mo |
+| **Shipday** | Driver app, GPS tracking, proof of delivery | Dispatch | ~$147/mo |
 | **Twilio** | SMS (OTP, order notifications) | Marketplace, Dashboard | $50–100/mo |
 | **Mapbox** | Geocoding, maps, zone validation | Marketplace, Dispatch | $0–50/mo (free tier) |
 | **PostHog** | Analytics, funnels, feature flags | All apps | $0 (free tier) |
 | **Resend** | Transactional email (receipts, invites) | All apps | $0–20/mo |
 | **Sentry** | Error tracking, performance monitoring | All apps | $0 (free tier — 5K errors/mo) |
 
-**Total infrastructure cost estimate: $700–1,100/month** (excluding Stripe transaction fees, which are covered by delivery fees).
+**Total infrastructure cost estimate: $350–550/month** (excluding Stripe transaction fees, which are covered by delivery fees).
 
 ---
 
@@ -415,7 +417,7 @@ As noted in the pitch deck, these apps will be built using modern AI coding tool
 - **Next.js + Supabase** is extremely well-documented and common in AI training data
 - **Monorepo with clear boundaries** means AI can work on one app at a time without breaking others
 - **Typed database schema** (auto-generated from Supabase) reduces AI hallucination on data shapes
-- **Third-party APIs for hard problems** (Onfleet, Stripe) means we're writing integration code, not building routing algorithms
+- **Third-party APIs for hard problems** (Shipday, Stripe) means we're writing integration code, not building driver apps from scratch
 
 ### 12.2 Build Order
 
@@ -425,7 +427,7 @@ As noted in the pitch deck, these apps will be built using modern AI coding tool
 | 2 | Restaurant Dashboard (menu + orders) | 2 weeks | Phase 1 |
 | 3 | Marketplace (browse + order) | 2 weeks | Phase 1 |
 | 4 | Stripe Connect integration | 1 week | Phases 2–3 |
-| 5 | Onfleet integration + Dispatch UI | 1.5 weeks | Phase 2 |
+| 5 | Shipday integration + Dispatch UI + zone batching | 1.5 weeks | Phase 2 |
 | 6 | Real-time tracking + notifications | 1 week | Phases 3–5 |
 | 7 | Analytics dashboards + admin | 1 week | All above |
 | 8 | Testing, polish, onboard first restaurant | 1.5 weeks | All above |
@@ -468,8 +470,8 @@ RWC Delivers is designed for 30 restaurants and ~100 deliveries/day. Here's what
 | Growth Trigger | Architecture Impact |
 |---------------|-------------------|
 | 50+ restaurants | No changes needed — Supabase Pro handles this easily |
-| 500+ deliveries/day | Onfleet pricing tier change; consider connection pooling for Supabase |
-| Multiple cities | Multi-tenant database design needed; separate Onfleet teams per city |
+| 500+ deliveries/day | Shipday pricing scales linearly ($0.04/task); consider connection pooling for Supabase |
+| Multiple cities | Multi-tenant database design needed; separate Shipday accounts per city; zone model extends naturally |
 | Native mobile apps | API layer already supports this — add React Native frontends |
 | Real-time chat (driver ↔ customer) | Add Supabase Realtime chat channel or integrate Twilio Conversations |
 
@@ -485,7 +487,7 @@ For v1, the architecture is intentionally simple. Premature optimization would s
 | Customer data privacy | Supabase RLS; restaurants own their customer data |
 | Restaurant data isolation | RLS policies prevent cross-restaurant access |
 | API authentication | Supabase JWT on all endpoints |
-| Webhook verification | Stripe signature validation; Onfleet HMAC |
+| Webhook verification | Stripe signature validation; Shipday webhook secret |
 | Admin access | City admin role with audit logging |
 | Infrastructure secrets | Vercel environment variables (encrypted at rest) |
 | DDoS / abuse | Vercel edge rate limiting; Supabase connection limits |
@@ -502,7 +504,7 @@ For v1, the architecture is intentionally simple. Premature optimization would s
 | Webhook failures | Custom logging → Supabase | Any failed webhook processing |
 | Order stuck in status | Cron job (Vercel Cron) | Order in `confirmed` for > 15 min |
 | Payment failures | Stripe Dashboard + webhook | Any payment_intent.payment_failed |
-| Delivery failures | Onfleet Dashboard + webhook | Any taskFailed event |
+| Delivery failures | Shipday Dashboard + webhook | Any order.failed event |
 | Uptime | Vercel (built-in) + UptimeRobot | Any downtime > 1 min |
 
 ---
@@ -512,10 +514,12 @@ For v1, the architecture is intentionally simple. Premature optimization would s
 Gathered from all four specs — these need resolution before or during build:
 
 **Business decisions:**
-- [ ] Exact delivery zone polygon (city input needed)
+- [x] ~~Delivery zone and radius~~ → 4 zones, 5–7 mile radius (resolved)
+- [x] ~~Dispatch platform~~ → Shipday at ~$147/month (resolved)
+- [ ] Exact zone polygons (GeoJSON boundaries — city input needed)
 - [ ] Sales tax: city or restaurant responsibility?
 - [ ] Tip distribution: per-delivery or pooled per shift?
-- [ ] Courier partner for Phase 1 pilot
+- [ ] Courier partner for Phase 1 pilot (DoorDash Drive / Uber Direct / local?)
 - [ ] Refund reserve budget
 
 **Product decisions:**
@@ -525,9 +529,10 @@ Gathered from all four specs — these need resolution before or during build:
 - [ ] Receipt/ticket printer integration?
 
 **Technical decisions:**
-- [ ] Onfleet pricing confirmation at projected volume
+- [x] ~~Dispatch pricing~~ → Shipday Professional $39/mo + $0.04/task (resolved)
+- [ ] Shipday API confirmation — verify specific-driver assignment + multi-stop batching support
 - [ ] Menu import tool for faster onboarding
-- [ ] Custom tracking map vs. Onfleet embedded tracking
+- [ ] Custom tracking map vs. Shipday embedded tracking
 - [ ] Subscription billing date: rolling or first-of-month?
 
 ---

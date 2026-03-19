@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getMockRestaurants, getMockMenu } from "../../../lib/mock-data";
+import { getRestaurantBySlug, getRestaurantMenu } from "@rwc/db";
 import { MenuSection } from "../../../components/MenuSection";
 import { CartDrawer } from "../../../components/CartDrawer";
 import { formatTime, getDayName } from "@rwc/shared";
@@ -13,10 +13,10 @@ interface Props {
 export default async function RestaurantPage({ params }: Props) {
   const { slug } = await params;
 
-  const restaurant = getMockRestaurants().find((r) => r.slug === slug);
+  const restaurant = await getRestaurantBySlug(slug);
   if (!restaurant) notFound();
 
-  const menu = getMockMenu(slug);
+  const menu = await getRestaurantMenu(restaurant.id);
   const { hero, gradient } = getRestaurantImage(slug);
 
   return (

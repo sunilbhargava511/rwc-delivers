@@ -97,7 +97,7 @@ Menu Overview → Add/Edit Category → Add/Edit Item → Set Modifiers → Uplo
 
 ### 5.4 Earnings & Analytics
 
-- **Daily/weekly/monthly earnings:** Revenue from orders, with breakdown of subtotal vs. delivery fees vs. tips
+- **Daily/weekly/monthly earnings:** Revenue from orders, with breakdown of subtotal vs. delivery fees (zone-dependent) vs. tips
 - **DoorDash comparison widget:** "You paid $399 this month. On DoorDash at 25%, you would have paid $X." This is a key retention tool.
 - **Order volume trends:** Orders per day, average order value, peak hours
 - **Top items:** Best sellers by volume and revenue
@@ -226,7 +226,7 @@ Menu Overview → Add/Edit Category → Add/Edit Item → Set Modifiers → Uplo
 |--------|------|-------------|
 | GET | `/api/dashboard/orders` | List orders for restaurant (filterable by status, date range) |
 | GET | `/api/dashboard/orders/[id]` | Order detail |
-| POST | `/api/dashboard/orders/[id]/accept` | Accept order + set prep time. **Triggers Onfleet task creation** (pickup at restaurant → deliver to customer). This is the handoff point to Dispatch. |
+| POST | `/api/dashboard/orders/[id]/accept` | Accept order + set prep time. **Order enters zone dispatch queue** (pickup at restaurant → deliver to customer). This is the handoff point to Dispatch. |
 | POST | `/api/dashboard/orders/[id]/reject` | Reject order (with reason) |
 | POST | `/api/dashboard/orders/[id]/status` | Update status (preparing → ready) |
 

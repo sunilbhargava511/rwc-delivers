@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getMockRestaurants } from "../../../lib/mock-data";
+import { getRestaurants } from "@rwc/db";
 
 export async function GET() {
-  // In production: const restaurants = await getRestaurants();
-  const restaurants = getMockRestaurants();
+  const restaurants = await getRestaurants();
 
   return NextResponse.json(restaurants, {
     headers: {
