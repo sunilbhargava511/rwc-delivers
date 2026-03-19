@@ -1,28 +1,36 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-function getEnvVar(name: string): string {
-  const value = process.env[name];
+function getSupabaseUrl(): string {
+  const value = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!value) {
     throw new Error(
-      `Missing ${name} environment variable. ` +
+      "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. " +
         "Set it in your .env.local file or deployment environment."
     );
   }
   return value;
 }
 
-const supabaseUrl = getEnvVar("NEXT_PUBLIC_SUPABASE_URL");
-const supabaseAnonKey = getEnvVar("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+function getSupabaseAnonKey(): string {
+  const value = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!value) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable. " +
+        "Set it in your .env.local file or deployment environment."
+    );
+  }
+  return value;
+}
 
 // Browser client (used in client components)
 export function createBrowserClient() {
-  return createClient<Database>(supabaseUrl, supabaseAnonKey);
+  return createClient<Database>(getSupabaseUrl(), getSupabaseAnonKey());
 }
 
 // Server client (used in server components and API routes)
 export function createServerClient() {
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
     auth: {
       persistSession: false,
     },
@@ -38,7 +46,7 @@ export function createServiceRoleClient() {
         "Required for webhook handlers and service-to-service operations."
     );
   }
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+  return createClient<Database>(getSupabaseUrl(), serviceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
