@@ -199,10 +199,10 @@ function StatusAdvanceButton({
 /* ------------------------------------------------------------------ */
 // Auto-simulation sequence with realistic delays (seconds)
 const SIM_SEQUENCE: { status: ActiveDelivery["status"]; dbStatus: string; delay: number; label: string }[] = [
-  { status: "en_route_to_pickup", dbStatus: "en_route", delay: 4, label: "Heading to restaurant" },
+  { status: "en_route_to_pickup", dbStatus: "en_route", delay: 6, label: "Heading to restaurant" },
   { status: "at_pickup", dbStatus: "en_route", delay: 6, label: "Arrived at restaurant" },
-  { status: "en_route_to_delivery", dbStatus: "en_route", delay: 5, label: "Picked up — delivering" },
-  { status: "delivered", dbStatus: "delivered", delay: 8, label: "Delivered!" },
+  { status: "en_route_to_delivery", dbStatus: "en_route", delay: 6, label: "Picked up — delivering" },
+  { status: "delivered", dbStatus: "delivered", delay: 6, label: "Delivered!" },
 ];
 
 export default function DeliveriesPage() {
