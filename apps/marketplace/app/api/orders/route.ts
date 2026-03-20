@@ -1,9 +1,26 @@
-import { NextResponse } from "next/server";
-import { createOrder } from "@rwc/db";
+import { NextRequest, NextResponse } from "next/server";
+import { createOrder, getOrder } from "@rwc/db";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export async function GET(request: NextRequest) {
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+  }
+  try {
+    const order = await getOrder(id);
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error("Failed to fetch order:", error);
+    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

@@ -87,6 +87,8 @@ export default function CheckoutPage() {
 
       const data = await response.json();
       clearCart();
+      // Save for "Track Order" link in header
+      localStorage.setItem("rwc_last_order", JSON.stringify({ id: data.id, ts: Date.now() }));
       router.push(`/orders/${data.id}`);
     } catch (error) {
       console.error("Order failed:", error);
