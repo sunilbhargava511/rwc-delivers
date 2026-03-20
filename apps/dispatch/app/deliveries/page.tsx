@@ -18,6 +18,7 @@ const statusLabels: Record<string, string> = {
   en_route_to_pickup: "En Route to Pickup",
   at_pickup: "At Pickup",
   en_route_to_delivery: "En Route to Delivery",
+  delivered: "Delivered",
 };
 
 const statusBadgeVariant: Record<string, "default" | "success" | "warning" | "error" | "brand"> = {
@@ -26,9 +27,38 @@ const statusBadgeVariant: Record<string, "default" | "success" | "warning" | "er
   en_route_to_pickup: "default",
   at_pickup: "default",
   en_route_to_delivery: "success",
+  delivered: "success",
 };
 
 type FilterStatus = "all" | "awaiting_driver" | "in_transit" | "at_pickup";
+
+// Map dispatch statuses to the DB OrderStatus values and define the next step
+const NEXT_STATUS: Record<string, { dbStatus: string; dispatchStatus: ActiveDelivery["status"]; label: string; color: string }> = {
+  driver_assigned: {
+    dbStatus: "en_route",
+    dispatchStatus: "en_route_to_pickup",
+    label: "Heading to Pickup",
+    color: "bg-blue-600 hover:bg-blue-700",
+  },
+  en_route_to_pickup: {
+    dbStatus: "en_route", // still en_route in DB — we track sub-states locally
+    dispatchStatus: "at_pickup",
+    label: "Arrived at Restaurant",
+    color: "bg-purple-600 hover:bg-purple-700",
+  },
+  at_pickup: {
+    dbStatus: "en_route",
+    dispatchStatus: "en_route_to_delivery",
+    label: "Picked Up — Delivering",
+    color: "bg-amber-600 hover:bg-amber-700",
+  },
+  en_route_to_delivery: {
+    dbStatus: "delivered",
+    dispatchStatus: "delivered",
+    label: "Mark Delivered",
+    color: "bg-emerald-600 hover:bg-emerald-700",
+  },
+};
 
 function getEtaFromDelivery(delivery: ActiveDelivery): string {
   const est = new Date(delivery.estimated_delivery);
@@ -52,7 +82,6 @@ function AssignDriverButton({
   const [assigning, setAssigning] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -71,10 +100,7 @@ function AssignDriverButton({
       const res = await fetch("/api/deliveries/assign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          order_id: delivery.id,
-          driver_id: driver.id,
-        }),
+        body: JSON.stringify({ order_id: delivery.id, driver_id: driver.id }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -95,30 +121,21 @@ function AssignDriverButton({
       <Button
         size="sm"
         variant="outline"
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation();
-          setOpen(!open);
-        }}
+        onClick={(e: React.MouseEvent) => { e.stopPropagation(); setOpen(!open); }}
         disabled={assigning}
       >
         {assigning ? "Assigning..." : "Assign Driver"}
       </Button>
-
       {open && (
         <div className="absolute z-50 mt-1 left-0 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 max-h-60 overflow-y-auto">
           {drivers.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-400">
-              No drivers available
-            </div>
+            <div className="px-3 py-2 text-sm text-gray-400">No drivers available</div>
           ) : (
             drivers.map((driver) => (
               <button
                 key={driver.id}
                 className="w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 transition-colors flex items-center justify-between"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelect(driver);
-                }}
+                onClick={(e) => { e.stopPropagation(); handleSelect(driver); }}
               >
                 <span className="font-medium">{driver.full_name}</span>
                 <span className="text-xs text-gray-400">{driver.phone}</span>
@@ -132,6 +149,52 @@ function AssignDriverButton({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Status advance button                                              */
+/* ------------------------------------------------------------------ */
+function StatusAdvanceButton({
+  delivery,
+  onAdvance,
+}: {
+  delivery: ActiveDelivery;
+  onAdvance: (orderId: string, newStatus: ActiveDelivery["status"]) => void;
+}) {
+  const [updating, setUpdating] = useState(false);
+  const next = NEXT_STATUS[delivery.status];
+  if (!next) return null;
+
+  async function handleClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    setUpdating(true);
+    try {
+      // Try API call for DB-backed orders
+      const res = await fetch("/api/deliveries/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: delivery.id, status: next.dbStatus }),
+      });
+      // Even if API fails (mock data), still update locally
+      if (!res.ok) {
+        console.warn("API status update failed, updating locally");
+      }
+    } catch {
+      console.warn("API not available, updating locally");
+    }
+    onAdvance(delivery.id, next.dispatchStatus);
+    setUpdating(false);
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={updating}
+      className={`text-xs font-semibold text-white px-3 py-1.5 rounded-lg transition-all shadow-sm ${next.color} disabled:opacity-50`}
+    >
+      {updating ? "Updating..." : `→ ${next.label}`}
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 export default function DeliveriesPage() {
@@ -140,12 +203,10 @@ export default function DeliveriesPage() {
   const [drivers, setDrivers] = useState<AvailableDriver[]>([]);
   const [localDeliveries, setLocalDeliveries] = useState<ActiveDelivery[]>([]);
 
-  // Keep local copy in sync with hook data
   useEffect(() => {
     setLocalDeliveries(deliveries);
   }, [deliveries]);
 
-  // Fetch available drivers
   useEffect(() => {
     async function loadDrivers() {
       try {
@@ -157,10 +218,7 @@ export default function DeliveriesPage() {
             return;
           }
         }
-      } catch {
-        // fall through to mock
-      }
-      // Fallback mock drivers
+      } catch { /* fall through */ }
       setDrivers([
         { id: "drv_01", full_name: "Marcus Chen", phone: "(650) 555-0111" },
         { id: "drv_02", full_name: "Sofia Ramirez", phone: "(650) 555-0122" },
@@ -172,13 +230,26 @@ export default function DeliveriesPage() {
     loadDrivers();
   }, []);
 
-  // Optimistic update after assigning
   function handleAssign(orderId: string, driverId: string, driverName: string) {
     setLocalDeliveries((prev) =>
       prev.map((d) =>
         d.id === orderId
           ? { ...d, driver_name: driverName, driver_id: driverId, status: "driver_assigned" as const }
           : d
+      )
+    );
+  }
+
+  function handleAdvance(orderId: string, newStatus: ActiveDelivery["status"]) {
+    if (newStatus === "delivered") {
+      // Remove from active deliveries after a brief delay
+      setTimeout(() => {
+        setLocalDeliveries((prev) => prev.filter((d) => d.id !== orderId));
+      }, 1500);
+    }
+    setLocalDeliveries((prev) =>
+      prev.map((d) =>
+        d.id === orderId ? { ...d, status: newStatus } : d
       )
     );
   }
@@ -237,34 +308,22 @@ export default function DeliveriesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Order #
-              </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Restaurant
-              </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Customer
-              </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Driver
-              </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Status
-              </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                ETA
-              </th>
-              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
-                Total
-              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Order #</th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Restaurant</th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Customer</th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Driver</th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Action</th>
+              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filteredDeliveries.map((delivery) => (
               <tr
                 key={delivery.id}
-                className="hover:bg-gray-50 transition-colors cursor-pointer"
+                className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                  delivery.status === "delivered" ? "opacity-50" : ""
+                }`}
               >
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                   {delivery.order_number}
@@ -288,20 +347,20 @@ export default function DeliveriesPage() {
                 </td>
                 <td className="px-6 py-4">
                   <Badge
-                    variant={statusBadgeVariant[delivery.status]}
+                    variant={statusBadgeVariant[delivery.status] || "default"}
                     className={
                       delivery.status === "at_pickup"
                         ? "bg-purple-100 text-purple-700"
-                        : ""
+                        : delivery.status === "delivered"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : ""
                     }
                   >
-                    {statusLabels[delivery.status]}
+                    {statusLabels[delivery.status] || delivery.status}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
-                  {delivery.status === "awaiting_driver"
-                    ? "--"
-                    : getEtaFromDelivery(delivery)}
+                <td className="px-6 py-4">
+                  <StatusAdvanceButton delivery={delivery} onAdvance={handleAdvance} />
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 text-right">
                   {formatCurrency(delivery.order_total)}
@@ -322,21 +381,25 @@ export default function DeliveriesPage() {
         {filteredDeliveries.map((delivery) => (
           <div
             key={delivery.id}
-            className="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4"
+            className={`bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4 ${
+              delivery.status === "delivered" ? "opacity-50" : ""
+            }`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-900">
                 {delivery.order_number}
               </span>
               <Badge
-                variant={statusBadgeVariant[delivery.status]}
+                variant={statusBadgeVariant[delivery.status] || "default"}
                 className={
                   delivery.status === "at_pickup"
                     ? "bg-purple-100 text-purple-700"
-                    : ""
+                    : delivery.status === "delivered"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : ""
                 }
               >
-                {statusLabels[delivery.status]}
+                {statusLabels[delivery.status] || delivery.status}
               </Badge>
             </div>
             <p className="text-sm text-gray-700 font-medium">
@@ -357,18 +420,15 @@ export default function DeliveriesPage() {
                   />
                 )}
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-xs text-gray-500">
-                  ETA:{" "}
-                  {delivery.status === "awaiting_driver"
-                    ? "--"
-                    : getEtaFromDelivery(delivery)}
-                </span>
-                <span className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(delivery.order_total)}
-                </span>
-              </div>
+              <span className="text-sm font-semibold text-gray-900">
+                {formatCurrency(delivery.order_total)}
+              </span>
             </div>
+            {delivery.status !== "awaiting_driver" && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <StatusAdvanceButton delivery={delivery} onAdvance={handleAdvance} />
+              </div>
+            )}
           </div>
         ))}
         {filteredDeliveries.length === 0 && (
