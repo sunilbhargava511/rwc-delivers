@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
 import type { ActiveDelivery } from "../../lib/mock-data";
 import { useActiveDeliveries } from "../../hooks/useActiveDeliveries";
+
+interface AvailableDriver {
+  id: string;
+  full_name: string;
+  phone: string;
+}
 
 const statusLabels: Record<string, string> = {
   awaiting_driver: "Awaiting Driver",
@@ -30,11 +36,154 @@ function getEtaFromDelivery(delivery: ActiveDelivery): string {
   return `${diffMin} min`;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Driver assignment dropdown                                         */
+/* ------------------------------------------------------------------ */
+function AssignDriverButton({
+  delivery,
+  drivers,
+  onAssign,
+}: {
+  delivery: ActiveDelivery;
+  drivers: AvailableDriver[];
+  onAssign: (orderId: string, driverId: string, driverName: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [open]);
+
+  async function handleSelect(driver: AvailableDriver) {
+    setAssigning(true);
+    try {
+      const res = await fetch("/api/deliveries/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: delivery.id,
+          driver_id: driver.id,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to assign");
+      }
+      onAssign(delivery.id, driver.id, driver.full_name);
+      setOpen(false);
+    } catch (err) {
+      console.error("Assign failed:", err);
+      alert("Failed to assign driver. Please try again.");
+    } finally {
+      setAssigning(false);
+    }
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        disabled={assigning}
+      >
+        {assigning ? "Assigning..." : "Assign Driver"}
+      </Button>
+
+      {open && (
+        <div className="absolute z-50 mt-1 left-0 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 max-h-60 overflow-y-auto">
+          {drivers.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-400">
+              No drivers available
+            </div>
+          ) : (
+            drivers.map((driver) => (
+              <button
+                key={driver.id}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 transition-colors flex items-center justify-between"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect(driver);
+                }}
+              >
+                <span className="font-medium">{driver.full_name}</span>
+                <span className="text-xs text-gray-400">{driver.phone}</span>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main page                                                          */
+/* ------------------------------------------------------------------ */
 export default function DeliveriesPage() {
   const { deliveries, isConnected, useMock } = useActiveDeliveries();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>("all");
+  const [drivers, setDrivers] = useState<AvailableDriver[]>([]);
+  const [localDeliveries, setLocalDeliveries] = useState<ActiveDelivery[]>([]);
 
-  const filteredDeliveries = deliveries.filter((d) => {
+  // Keep local copy in sync with hook data
+  useEffect(() => {
+    setLocalDeliveries(deliveries);
+  }, [deliveries]);
+
+  // Fetch available drivers
+  useEffect(() => {
+    async function loadDrivers() {
+      try {
+        const res = await fetch("/api/drivers");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setDrivers(data);
+            return;
+          }
+        }
+      } catch {
+        // fall through to mock
+      }
+      // Fallback mock drivers
+      setDrivers([
+        { id: "drv_01", full_name: "Marcus Chen", phone: "(650) 555-0111" },
+        { id: "drv_02", full_name: "Sofia Ramirez", phone: "(650) 555-0122" },
+        { id: "drv_03", full_name: "Tyler Washington", phone: "(650) 555-0133" },
+        { id: "drv_04", full_name: "Priya Patel", phone: "(650) 555-0144" },
+        { id: "drv_05", full_name: "Jordan Kim", phone: "(650) 555-0155" },
+      ]);
+    }
+    loadDrivers();
+  }, []);
+
+  // Optimistic update after assigning
+  function handleAssign(orderId: string, driverId: string, driverName: string) {
+    setLocalDeliveries((prev) =>
+      prev.map((d) =>
+        d.id === orderId
+          ? { ...d, driver_name: driverName, driver_id: driverId, status: "driver_assigned" as const }
+          : d
+      )
+    );
+  }
+
+  const filteredDeliveries = localDeliveries.filter((d) => {
     if (activeFilter === "all") return true;
     if (activeFilter === "awaiting_driver") return d.status === "awaiting_driver";
     if (activeFilter === "at_pickup") return d.status === "at_pickup";
@@ -60,7 +209,7 @@ export default function DeliveriesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">Active Deliveries</h1>
-          <Badge variant="brand">{deliveries.length}</Badge>
+          <Badge variant="brand">{localDeliveries.length}</Badge>
           <div className="flex items-center gap-1.5 ml-2">
             <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : useMock ? "bg-yellow-400" : "bg-red-500"}`} />
             <span className="text-xs text-gray-400">{isConnected ? "Live" : useMock ? "Demo" : "Connecting..."}</span>
@@ -130,9 +279,11 @@ export default function DeliveriesPage() {
                   {delivery.driver_name ? (
                     delivery.driver_name
                   ) : (
-                    <Button size="sm" variant="outline">
-                      Assign Driver
-                    </Button>
+                    <AssignDriverButton
+                      delivery={delivery}
+                      drivers={drivers}
+                      onAssign={handleAssign}
+                    />
                   )}
                 </td>
                 <td className="px-6 py-4">
@@ -199,9 +350,11 @@ export default function DeliveriesPage() {
                 {delivery.driver_name ? (
                   <span>{delivery.driver_name}</span>
                 ) : (
-                  <Button size="sm" variant="outline">
-                    Assign Driver
-                  </Button>
+                  <AssignDriverButton
+                    delivery={delivery}
+                    drivers={drivers}
+                    onAssign={handleAssign}
+                  />
                 )}
               </div>
               <div className="flex items-center gap-4">
