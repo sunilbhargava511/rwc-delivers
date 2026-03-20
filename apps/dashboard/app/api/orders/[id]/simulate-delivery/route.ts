@@ -80,7 +80,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     });
 
     // Step 2: After delay, driver picks up (en_route)
-    await sleep(3000);
+    await sleep(6000);
 
     await updateDeliveryAssignment(assignmentId, {
       picked_up_at: new Date().toISOString(),
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 
     // Step 3: Simulate driver moving through waypoints
     for (let i = 1; i < WAYPOINTS.length - 1; i++) {
-      await sleep(2000);
+      await sleep(6000);
       await updateDeliveryAssignment(assignmentId, {
         driver_lat: WAYPOINTS[i].lat,
         driver_lng: WAYPOINTS[i].lng,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     }
 
     // Step 4: Delivered
-    await sleep(2000);
+    await sleep(6000);
     await updateDeliveryAssignment(assignmentId, {
       delivered_at: new Date().toISOString(),
       driver_lat: WAYPOINTS[WAYPOINTS.length - 1].lat,

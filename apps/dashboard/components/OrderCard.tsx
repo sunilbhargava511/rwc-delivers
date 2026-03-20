@@ -21,8 +21,6 @@ interface OrderCardProps {
   onStartPreparing?: () => void;
   onMarkReady?: () => void;
   onReject?: () => void;
-  onSimulateDelivery?: () => void;
-  isSimulating?: boolean;
 }
 
 const statusBadgeVariant: Record<
@@ -60,8 +58,6 @@ export function OrderCard({
   onStartPreparing,
   onMarkReady,
   onReject,
-  onSimulateDelivery,
-  isSimulating,
 }: OrderCardProps) {
   const customerName = CUSTOMER_NAMES[order.id] ?? "Customer";
 
@@ -169,23 +165,9 @@ export function OrderCard({
         )}
 
         {order.status === "ready_for_pickup" && (
-          <div className="space-y-2">
-            {onSimulateDelivery && (
-              <Button
-                size="sm"
-                variant="primary"
-                className="w-full !bg-purple-600 hover:!bg-purple-700"
-                onClick={onSimulateDelivery}
-                disabled={isSimulating}
-                loading={isSimulating}
-              >
-                {isSimulating ? "Simulating..." : "Simulate Delivery"}
-              </Button>
-            )}
-            <p className="text-center text-xs text-gray-400">
-              {isSimulating ? "Driver assigned, pickup, delivery in progress..." : "Awaiting driver"}
-            </p>
-          </div>
+          <p className="text-center text-xs text-gray-400">
+            Awaiting driver
+          </p>
         )}
 
         {(order.status === "driver_assigned" || order.status === "en_route") && (

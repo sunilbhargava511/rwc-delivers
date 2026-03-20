@@ -104,10 +104,6 @@ export default function OrdersPage() {
     }
   }
 
-  const [simulatingOrders, setSimulatingOrders] = useState<Set<string>>(
-    new Set()
-  );
-
   function handleAccept(orderId: string) {
     handleStatusChange(orderId, "confirmed");
   }
@@ -122,27 +118,6 @@ export default function OrdersPage() {
 
   function handleMarkReady(orderId: string) {
     handleStatusChange(orderId, "ready_for_pickup");
-  }
-
-  async function handleSimulateDelivery(orderId: string) {
-    setSimulatingOrders((prev) => new Set(prev).add(orderId));
-    try {
-      const res = await fetch(`/api/orders/${orderId}/simulate-delivery`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        console.error("Simulate delivery failed:", data.error);
-      }
-    } catch (err) {
-      console.error("Simulate delivery failed:", err);
-    } finally {
-      setSimulatingOrders((prev) => {
-        const next = new Set(prev);
-        next.delete(orderId);
-        return next;
-      });
-    }
   }
 
   return (
@@ -205,8 +180,6 @@ export default function OrdersPage() {
                       onReject={() => handleReject(order.id)}
                       onStartPreparing={() => handleStartPreparing(order.id)}
                       onMarkReady={() => handleMarkReady(order.id)}
-                      onSimulateDelivery={() => handleSimulateDelivery(order.id)}
-                      isSimulating={simulatingOrders.has(order.id)}
                     />
                   ))}
                 </div>
