@@ -61,7 +61,22 @@ export function useActiveDeliveries() {
     load();
   }, [fetchDeliveries]);
 
-  // Realtime subscription — refetch on any order/assignment change
+  // Always poll every 5s — Realtime can be unreliable on Railway
+  useEffect(() => {
+    if (isLoading) return;
+
+    const interval = setInterval(async () => {
+      const data = await fetchDeliveries();
+      if (data && data.length > 0) {
+        setDeliveries(data);
+        setUseMock(false);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isLoading, fetchDeliveries]);
+
+  // Realtime subscription — refetch on any order/assignment change (bonus)
   useEffect(() => {
     const supabase = getSupabase();
     if (!supabase) return;

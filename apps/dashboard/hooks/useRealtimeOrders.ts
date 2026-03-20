@@ -63,9 +63,9 @@ export function useRealtimeOrders({
     fetchOrders().finally(() => setIsLoading(false));
   }, [fetchOrders]);
 
-  // Polling fallback when Realtime is not connected
+  // Always poll — Realtime can report SUBSCRIBED but not deliver events on Railway
   useEffect(() => {
-    if (isConnected) return; // Realtime is working, no need to poll
+
     if (isLoading) return; // Don't poll during initial load
 
     const interval = setInterval(() => {
