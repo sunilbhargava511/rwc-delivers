@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { formatCurrency } from "@rwc/shared";
 import { Badge, Button } from "@rwc/ui";
 import type { ActiveDelivery } from "../../lib/mock-data";
@@ -197,11 +197,22 @@ function StatusAdvanceButton({
 /* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
+// Auto-simulation sequence with realistic delays (seconds)
+const SIM_SEQUENCE: { status: ActiveDelivery["status"]; dbStatus: string; delay: number; label: string }[] = [
+  { status: "en_route_to_pickup", dbStatus: "en_route", delay: 4, label: "Heading to restaurant" },
+  { status: "at_pickup", dbStatus: "en_route", delay: 6, label: "Arrived at restaurant" },
+  { status: "en_route_to_delivery", dbStatus: "en_route", delay: 5, label: "Picked up — delivering" },
+  { status: "delivered", dbStatus: "delivered", delay: 8, label: "Delivered!" },
+];
+
 export default function DeliveriesPage() {
   const { deliveries, isConnected, useMock } = useActiveDeliveries();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>("all");
   const [drivers, setDrivers] = useState<AvailableDriver[]>([]);
   const [localDeliveries, setLocalDeliveries] = useState<ActiveDelivery[]>([]);
+  const [autoSim, setAutoSim] = useState(true);
+  const [simulating, setSimulating] = useState<Record<string, string>>({}); // orderId → current step label
+  const simTimers = useRef<Record<string, ReturnType<typeof setTimeout>[]>>({});
 
   useEffect(() => {
     setLocalDeliveries(deliveries);
@@ -230,6 +241,69 @@ export default function DeliveriesPage() {
     loadDrivers();
   }, []);
 
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(simTimers.current).forEach((timers) =>
+        timers.forEach(clearTimeout)
+      );
+    };
+  }, []);
+
+  const runAutoSim = useCallback((orderId: string) => {
+    // Clear any existing timers for this order
+    if (simTimers.current[orderId]) {
+      simTimers.current[orderId].forEach(clearTimeout);
+    }
+    simTimers.current[orderId] = [];
+
+    let cumulativeDelay = 0;
+    SIM_SEQUENCE.forEach((step, i) => {
+      cumulativeDelay += step.delay * 1000;
+
+      const timer = setTimeout(async () => {
+        // Update sim label
+        setSimulating((prev) => ({ ...prev, [orderId]: step.label }));
+
+        // Try API call
+        try {
+          await fetch("/api/deliveries/status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId, status: step.dbStatus }),
+          });
+        } catch { /* local-only fallback */ }
+
+        // Update local status
+        if (step.status === "delivered") {
+          setLocalDeliveries((prev) =>
+            prev.map((d) => d.id === orderId ? { ...d, status: step.status } : d)
+          );
+          // Remove after fade
+          setTimeout(() => {
+            setLocalDeliveries((prev) => prev.filter((d) => d.id !== orderId));
+            setSimulating((prev) => {
+              const next = { ...prev };
+              delete next[orderId];
+              return next;
+            });
+          }, 2000);
+        } else {
+          setLocalDeliveries((prev) =>
+            prev.map((d) => d.id === orderId ? { ...d, status: step.status } : d)
+          );
+        }
+
+        // Clear sim label after last step
+        if (i === SIM_SEQUENCE.length - 1) {
+          // handled above in delivered branch
+        }
+      }, cumulativeDelay);
+
+      simTimers.current[orderId].push(timer);
+    });
+  }, []);
+
   function handleAssign(orderId: string, driverId: string, driverName: string) {
     setLocalDeliveries((prev) =>
       prev.map((d) =>
@@ -238,11 +312,16 @@ export default function DeliveriesPage() {
           : d
       )
     );
+
+    // If auto-sim is on, start the delivery simulation
+    if (autoSim) {
+      setSimulating((prev) => ({ ...prev, [orderId]: "Driver assigned — starting route..." }));
+      runAutoSim(orderId);
+    }
   }
 
   function handleAdvance(orderId: string, newStatus: ActiveDelivery["status"]) {
     if (newStatus === "delivered") {
-      // Remove from active deliveries after a brief delay
       setTimeout(() => {
         setLocalDeliveries((prev) => prev.filter((d) => d.id !== orderId));
       }, 1500);
@@ -286,7 +365,7 @@ export default function DeliveriesPage() {
             <span className="text-xs text-gray-400">{isConnected ? "Live" : useMock ? "Demo" : "Connecting..."}</span>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filters.map((f) => (
             <button
               key={f.value}
@@ -300,6 +379,19 @@ export default function DeliveriesPage() {
               {f.label}
             </button>
           ))}
+          <div className="ml-2 pl-2 border-l border-gray-200">
+            <button
+              onClick={() => setAutoSim(!autoSim)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                autoSim
+                  ? "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${autoSim ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
+              Auto-Simulate
+            </button>
+          </div>
         </div>
       </div>
 
@@ -346,21 +438,33 @@ export default function DeliveriesPage() {
                   )}
                 </td>
                 <td className="px-6 py-4">
-                  <Badge
-                    variant={statusBadgeVariant[delivery.status] || "default"}
-                    className={
-                      delivery.status === "at_pickup"
-                        ? "bg-purple-100 text-purple-700"
-                        : delivery.status === "delivered"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : ""
-                    }
-                  >
-                    {statusLabels[delivery.status] || delivery.status}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge
+                      variant={statusBadgeVariant[delivery.status] || "default"}
+                      className={
+                        delivery.status === "at_pickup"
+                          ? "bg-purple-100 text-purple-700"
+                          : delivery.status === "delivered"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : ""
+                      }
+                    >
+                      {statusLabels[delivery.status] || delivery.status}
+                    </Badge>
+                    {simulating[delivery.id] && (
+                      <span className="text-[10px] text-emerald-600 font-medium animate-pulse">
+                        {simulating[delivery.id]}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
-                  <StatusAdvanceButton delivery={delivery} onAdvance={handleAdvance} />
+                  {!simulating[delivery.id] && (
+                    <StatusAdvanceButton delivery={delivery} onAdvance={handleAdvance} />
+                  )}
+                  {simulating[delivery.id] && (
+                    <span className="text-[10px] text-gray-400 italic">simulating...</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 text-right">
                   {formatCurrency(delivery.order_total)}
