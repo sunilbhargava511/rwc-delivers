@@ -299,32 +299,44 @@ function SlideProblem() {
 /* ------------------------------------------------------------------ */
 /*  Slide 3 — Interactive Comparison Calculator                        */
 /* ------------------------------------------------------------------ */
+const PLANS = [
+  { name: "Starter", monthly: 99, perOrder: 3 },
+  { name: "Growth", monthly: 199, perOrder: 2 },
+  { name: "Pro", monthly: 299, perOrder: 1 },
+  { name: "Power", monthly: 399, perOrder: 0.5 },
+] as const;
+
 function SlideComparison() {
   const [orderSize, setOrderSize] = useState(50);
   const [ordersPerDay, setOrdersPerDay] = useState(5);
+  const [planIndex, setPlanIndex] = useState(2); // Pro default
+  const plan = PLANS[planIndex];
 
-  // DoorDash fees
+  const ordersPerMonth = ordersPerDay * 30;
+  const ordersPerYear = ordersPerDay * 365;
+
+  // DoorDash fees per order
   const ddCommission = orderSize * 0.27;
   const ddProcessing = orderSize * 0.03;
-  const ddRestaurantReceives = orderSize - ddCommission - ddProcessing;
+  const ddRestaurantPerOrder = orderSize - ddCommission - ddProcessing;
   const ddDeliveryFee = 5.99;
   const ddServiceFee = 7.0;
   const ddCustomerPays = orderSize + ddDeliveryFee + ddServiceFee;
+  const ddAnnualCost = (ddCommission + ddProcessing) * ordersPerYear;
 
-  // RWC fees (15% launch plan)
-  const rwcCommission = orderSize * 0.15;
+  // RWC fees per order (subscription plan)
   const rwcProcessing = orderSize * 0.03;
-  const rwcRestaurantReceives = orderSize - rwcCommission - rwcProcessing;
+  const rwcPerOrderFee = plan.perOrder;
+  const rwcRestaurantPerOrder = orderSize - rwcPerOrderFee - rwcProcessing;
   const rwcDeliveryFee = 4.5;
   const rwcCustomerPays = orderSize + rwcDeliveryFee;
+  const rwcAnnualCost = (plan.monthly * 12) + (rwcPerOrderFee * ordersPerYear) + (rwcProcessing * ordersPerYear);
 
-  // Annual impact (365 days)
-  const perOrderSavings = rwcRestaurantReceives - ddRestaurantReceives;
-  const annualSavingsPerRestaurant = perOrderSavings * ordersPerDay * 365;
+  // Annual impact
+  const annualSavings = ddAnnualCost - rwcAnnualCost;
   const customerSavingsPerOrder = ddCustomerPays - rwcCustomerPays;
-  const annualCustomerSavings = customerSavingsPerOrder * ordersPerDay * 365;
   const numRestaurants = 30;
-  const totalEconomyImpact = annualSavingsPerRestaurant * numRestaurants;
+  const totalEconomyImpact = annualSavings * numRestaurants;
 
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmtInt = (n: number) => Math.round(n).toLocaleString("en-US");
@@ -333,67 +345,79 @@ function SlideComparison() {
     <LightSlide>
       <div className="max-w-5xl w-full">
         <SlideLabel>Interactive Calculator</SlideLabel>
-        <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-5">
           DoorDash vs. RWC Delivers
         </h2>
 
-        {/* Sliders */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-gray-700">Avg Order Size</span>
-              <span className="text-2xl font-black text-gray-900">${orderSize}</span>
+        {/* Controls */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-semibold text-gray-700">Avg Order Size</span>
+              <span className="text-xl font-black text-gray-900">${orderSize}</span>
             </div>
             <input
-              type="range"
-              min={15}
-              max={100}
-              step={5}
-              value={orderSize}
+              type="range" min={15} max={100} step={5} value={orderSize}
               onChange={(e) => setOrderSize(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #e8614d ${((orderSize - 15) / 85) * 100}%, #e5e7eb ${((orderSize - 15) / 85) * 100}%)`,
-              }}
+              style={{ background: `linear-gradient(to right, #e8614d ${((orderSize - 15) / 85) * 100}%, #e5e7eb ${((orderSize - 15) / 85) * 100}%)` }}
             />
-            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+            <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
               <span>$15</span><span>$100</span>
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-gray-700">Orders / Day</span>
-              <span className="text-2xl font-black text-gray-900">{ordersPerDay}</span>
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-semibold text-gray-700">Delivery Orders / Day</span>
+              <span className="text-xl font-black text-gray-900">{ordersPerDay}</span>
             </div>
             <input
-              type="range"
-              min={1}
-              max={20}
-              step={1}
-              value={ordersPerDay}
+              type="range" min={1} max={20} step={1} value={ordersPerDay}
               onChange={(e) => setOrdersPerDay(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #e8614d ${((ordersPerDay - 1) / 19) * 100}%, #e5e7eb ${((ordersPerDay - 1) / 19) * 100}%)`,
-              }}
+              style={{ background: `linear-gradient(to right, #e8614d ${((ordersPerDay - 1) / 19) * 100}%, #e5e7eb ${((ordersPerDay - 1) / 19) * 100}%)` }}
             />
-            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+            <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
               <span>1</span><span>20</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-semibold text-gray-700">RWC Plan</span>
+              <span className="text-sm font-black text-[#e8614d]">{plan.name}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1">
+              {PLANS.map((p, i) => (
+                <button
+                  key={p.name}
+                  onClick={(e) => { e.stopPropagation(); setPlanIndex(i); }}
+                  className={`text-[10px] font-bold py-1.5 rounded-lg transition-all ${
+                    i === planIndex
+                      ? "bg-[#e8614d] text-white shadow-sm"
+                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+            <div className="text-[10px] text-gray-400 mt-1.5 text-center">
+              ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order
             </div>
           </div>
         </div>
 
         {/* Side-by-side comparison */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
           {/* DoorDash */}
-          <div className="bg-white rounded-2xl border-2 border-red-200 p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-[10px]">DD</span>
+          <div className="bg-white rounded-2xl border-2 border-red-200 p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 bg-red-500 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-[8px]">DD</span>
               </div>
               <span className="font-bold text-gray-900 text-sm">On DoorDash</span>
             </div>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Menu price</span>
                 <span className="font-semibold text-gray-900">${fmt(orderSize)}</span>
@@ -408,31 +432,34 @@ function SlideComparison() {
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between">
                 <span className="font-bold text-gray-900">Restaurant gets</span>
-                <span className="font-black text-red-600 text-lg">${fmt(ddRestaurantReceives)}</span>
+                <span className="font-black text-red-600 text-lg">${fmt(ddRestaurantPerOrder)}</span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
-              Customer pays: ${fmt(orderSize)} + ${fmt(ddDeliveryFee)} + ${fmt(ddServiceFee)} ={" "}
-              <strong className="text-gray-600">${fmt(ddCustomerPays)}</strong>
+            <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">
+              Customer pays: ${fmt(orderSize)} + ${fmt(ddDeliveryFee)} + ${fmt(ddServiceFee)} = <strong className="text-gray-600">${fmt(ddCustomerPays)}</strong>
+            </div>
+            <div className="mt-2 text-xs text-red-500 font-semibold">
+              Annual cost: ${fmtInt(ddAnnualCost)}/yr in fees
             </div>
           </div>
 
           {/* RWC Delivers */}
-          <div className="bg-white rounded-2xl border-2 border-emerald-300 p-5 shadow-sm ring-2 ring-emerald-100">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-gradient-to-br from-[#e8614d] to-[#f59e0b] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-[10px]">R</span>
+          <div className="bg-white rounded-2xl border-2 border-emerald-300 p-4 shadow-sm ring-2 ring-emerald-100">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 bg-gradient-to-br from-[#e8614d] to-[#f59e0b] rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-[8px]">R</span>
               </div>
               <span className="font-bold text-gray-900 text-sm">On RWC Delivers</span>
+              <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full ml-auto">{plan.name} Plan</span>
             </div>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Menu price</span>
                 <span className="font-semibold text-gray-900">${fmt(orderSize)}</span>
               </div>
               <div className="flex justify-between text-amber-600">
-                <span>Commission (15%)</span>
-                <span className="font-semibold">-${fmt(rwcCommission)}</span>
+                <span>Per-order fee</span>
+                <span className="font-semibold">-${fmt(rwcPerOrderFee)}</span>
               </div>
               <div className="flex justify-between text-amber-600">
                 <span>Processing (3%)</span>
@@ -440,12 +467,14 @@ function SlideComparison() {
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between">
                 <span className="font-bold text-gray-900">Restaurant gets</span>
-                <span className="font-black text-emerald-600 text-lg">${fmt(rwcRestaurantReceives)}</span>
+                <span className="font-black text-emerald-600 text-lg">${fmt(rwcRestaurantPerOrder)}</span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
-              Customer pays: ${fmt(orderSize)} + ${fmt(rwcDeliveryFee)} + no service fee ={" "}
-              <strong className="text-gray-600">${fmt(rwcCustomerPays)}</strong>
+            <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">
+              Customer pays: ${fmt(orderSize)} + ${fmt(rwcDeliveryFee)} + no service fee = <strong className="text-gray-600">${fmt(rwcCustomerPays)}</strong>
+            </div>
+            <div className="mt-2 text-xs text-emerald-600 font-semibold">
+              Annual cost: ${fmtInt(rwcAnnualCost)}/yr ({plan.monthly}/mo + fees)
             </div>
           </div>
         </div>
@@ -453,17 +482,21 @@ function SlideComparison() {
         {/* Dynamic impact stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
-            <div className="text-xl sm:text-2xl font-black text-emerald-700">+${fmtInt(annualSavingsPerRestaurant)}</div>
+            <div className="text-xl sm:text-2xl font-black text-emerald-700">
+              {annualSavings > 0 ? `+$${fmtInt(annualSavings)}` : `-$${fmtInt(Math.abs(annualSavings))}`}
+            </div>
             <div className="text-xs text-emerald-600 mt-0.5">saved per restaurant/year</div>
-            <div className="text-[10px] text-emerald-500">+${fmt(perOrderSavings)}/order</div>
+            <div className="text-[10px] text-emerald-500">vs DoorDash</div>
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
             <div className="text-xl sm:text-2xl font-black text-blue-700">${fmt(customerSavingsPerOrder)}</div>
             <div className="text-xs text-blue-600 mt-0.5">saved per customer order</div>
-            <div className="text-[10px] text-blue-500">${fmtInt(annualCustomerSavings)}/yr per household</div>
+            <div className="text-[10px] text-blue-500">no service fee, lower delivery fee</div>
           </div>
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
-            <div className="text-xl sm:text-2xl font-black text-amber-700">${totalEconomyImpact >= 1000000 ? `${(totalEconomyImpact / 1000000).toFixed(1)}M` : `${fmtInt(totalEconomyImpact)}`}</div>
+            <div className="text-xl sm:text-2xl font-black text-amber-700">
+              {totalEconomyImpact >= 1000000 ? `$${(totalEconomyImpact / 1000000).toFixed(1)}M` : `$${fmtInt(totalEconomyImpact)}`}
+            </div>
             <div className="text-xs text-amber-600 mt-0.5">recouped/yr by RWC economy</div>
             <div className="text-[10px] text-amber-500">{numRestaurants} restaurants</div>
           </div>
