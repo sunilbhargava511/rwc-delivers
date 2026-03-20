@@ -391,6 +391,7 @@ function SlideComparison() {
                 <button
                   key={p.name}
                   onClick={(e) => { e.stopPropagation(); setPlanIndex(i); }}
+                  title={`${p.name}: $${p.monthly}/mo + $${p.perOrder < 1 ? p.perOrder.toFixed(2) : p.perOrder}/order`}
                   className={`text-[10px] font-bold py-1.5 rounded-lg transition-all ${
                     i === planIndex
                       ? "bg-[#e8614d] text-white shadow-sm"
