@@ -904,7 +904,7 @@ function SlideWhatGetsBuilt() {
           Built affordably using modern AI coding tools.
         </p>
 
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {apps.map((app) => (
             <div
               key={app.name}
@@ -933,6 +933,22 @@ function SlideWhatGetsBuilt() {
               <p className="text-sm text-gray-500">{app.desc}</p>
             </div>
           ))}
+        </div>
+
+        <div className="text-center relative z-40">
+          <a
+            href="/demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e8614d] to-[#f59e0b] text-white font-bold px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Try the Live Demo
+          </a>
+          <p className="text-xs text-gray-400 mt-2">Three apps already built and running</p>
         </div>
       </div>
     </LightSlide>
