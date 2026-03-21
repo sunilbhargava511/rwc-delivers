@@ -325,12 +325,13 @@ function SlideComparison() {
   const ddAnnualCost = (ddCommission + ddProcessing) * ordersPerYear;
 
   // RWC fees per order (subscription plan)
-  const rwcProcessing = orderSize * 0.03;
-  const rwcPerOrderFee = plan.perOrder;
-  const rwcRestaurantPerOrder = orderSize - rwcPerOrderFee - rwcProcessing;
+  // Total annual cost = subscription + per-order fees + processing
+  const rwcAnnualCost = (plan.monthly * 12) + (plan.perOrder * ordersPerYear) + (orderSize * 0.03 * ordersPerYear);
+  // Effective per-order cost amortizes everything (stays flat as order size changes)
+  const rwcEffectivePerOrder = ordersPerYear > 0 ? rwcAnnualCost / ordersPerYear : 0;
+  const rwcRestaurantPerOrder = orderSize - rwcEffectivePerOrder;
   const rwcDeliveryFee = 7.5;
   const rwcCustomerPays = orderSize + rwcDeliveryFee;
-  const rwcAnnualCost = (plan.monthly * 12) + (rwcPerOrderFee * ordersPerYear) + (rwcProcessing * ordersPerYear);
 
   // Annual impact
   const annualSavings = ddAnnualCost - rwcAnnualCost;
@@ -459,12 +460,11 @@ function SlideComparison() {
                 <span className="font-semibold text-gray-900">${fmt(orderSize)}</span>
               </div>
               <div className="flex justify-between text-amber-600">
-                <span>Per-order fee</span>
-                <span className="font-semibold">-${fmt(rwcPerOrderFee)}</span>
+                <span>Effective fee/order</span>
+                <span className="font-semibold">-${fmt(rwcEffectivePerOrder)}</span>
               </div>
-              <div className="flex justify-between text-amber-600">
-                <span>Processing (3%)</span>
-                <span className="font-semibold">-${fmt(rwcProcessing)}</span>
+              <div className="text-[10px] text-gray-400 -mt-1 pl-1">
+                ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order + 3% processing
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between">
                 <span className="font-bold text-gray-900">Restaurant gets</span>
