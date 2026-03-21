@@ -82,10 +82,10 @@ export default function DeckPage() {
     <SlideProblem key={1} />,
     <SlideComparison key={2} />,
     <SlideVision key={3} />,
-    <SlidePricing key={4} />,
-    <SlideHowItWorks key={5} />,
-    <SlideDriverCoop key={6} />,
-    <SlideWhatGetsBuilt key={7} />,
+    <SlideHowItWorks key={4} />,
+    <SlideDriverCoop key={5} />,
+    <SlideWhatGetsBuilt key={6} />,
+    <SlidePricing key={7} />,
     <SlideEconomics key={8} />,
     <SlideWhyNow key={9} />,
     <SlideTheAsk key={10} />,
@@ -492,12 +492,10 @@ function SlideComparison() {
               </div>
               <div className="flex justify-between text-amber-600">
                 <span>
-                  {isPercentPlan ? `Commission (${plan.pct * 100}%)` : "RWC fee/order"}
-                  {!isPercentPlan && (
-                    <span className="text-[10px] text-gray-400 font-normal ml-1">
-                      (${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order)
-                    </span>
-                  )}
+                  {isPercentPlan
+                    ? `Commission (${plan.pct * 100}%)`
+                    : <>RWC fee <span className="text-[10px] text-gray-400 font-normal">({plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order, amortized)</span></>
+                  }
                 </span>
                 <span className="font-semibold">-${fmt(rwcSubPerOrder)}</span>
               </div>
