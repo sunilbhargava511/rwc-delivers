@@ -300,16 +300,17 @@ function SlideProblem() {
 /*  Slide 3 — Interactive Comparison Calculator                        */
 /* ------------------------------------------------------------------ */
 const PLANS = [
-  { name: "Starter", monthly: 99, perOrder: 3 },
-  { name: "Growth", monthly: 199, perOrder: 2 },
-  { name: "Pro", monthly: 299, perOrder: 1 },
-  { name: "Power", monthly: 399, perOrder: 0.5 },
+  { name: "Starter", monthly: 0, perOrder: 0, pct: 0.15 },
+  { name: "Base", monthly: 99, perOrder: 3, pct: 0 },
+  { name: "Growth", monthly: 199, perOrder: 2, pct: 0 },
+  { name: "Pro", monthly: 299, perOrder: 1, pct: 0 },
+  { name: "Power", monthly: 399, perOrder: 0.5, pct: 0 },
 ] as const;
 
 function SlideComparison() {
   const [orderSize, setOrderSize] = useState(50);
   const [ordersPerDay, setOrdersPerDay] = useState(5);
-  const [planIndex, setPlanIndex] = useState(2); // Pro default
+  const [planIndex, setPlanIndex] = useState(3); // Pro default
   const plan = PLANS[planIndex];
 
   const ordersPerMonth = ordersPerDay * 30;
@@ -325,10 +326,15 @@ function SlideComparison() {
   const ddAnnualCost = (ddCommission + ddProcessing) * ordersPerYear;
 
   // RWC fees per order (subscription plan)
+  const isPercentPlan = plan.pct > 0;
   const rwcProcessing = orderSize * 0.03;
-  // Amortize subscription into per-order: (monthly * 12 + per-order fee * orders) / orders
-  const rwcSubPerOrder = ordersPerYear > 0 ? ((plan.monthly * 12) + (plan.perOrder * ordersPerYear)) / ordersPerYear : 0;
-  const rwcAnnualCost = (plan.monthly * 12) + (plan.perOrder * ordersPerYear) + (rwcProcessing * ordersPerYear);
+  // Starter: 15% commission. Others: amortize subscription + per-order fee
+  const rwcSubPerOrder = isPercentPlan
+    ? orderSize * plan.pct
+    : ordersPerYear > 0 ? ((plan.monthly * 12) + (plan.perOrder * ordersPerYear)) / ordersPerYear : 0;
+  const rwcAnnualCost = isPercentPlan
+    ? (orderSize * plan.pct + rwcProcessing) * ordersPerYear
+    : (plan.monthly * 12) + (plan.perOrder * ordersPerYear) + (rwcProcessing * ordersPerYear);
   const rwcRestaurantPerOrder = orderSize - rwcSubPerOrder - rwcProcessing;
   const rwcDeliveryFee = 7.5;
   const rwcCustomerPays = orderSize + rwcDeliveryFee;
@@ -387,12 +393,12 @@ function SlideComparison() {
               <span className="text-xs font-semibold text-gray-700">RWC Plan</span>
               <span className="text-sm font-black text-[#e8614d]">{plan.name}</span>
             </div>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-5 gap-1">
               {PLANS.map((p, i) => (
                 <button
                   key={p.name}
                   onClick={(e) => { e.stopPropagation(); setPlanIndex(i); }}
-                  title={`${p.name}: $${p.monthly}/mo + $${p.perOrder < 1 ? p.perOrder.toFixed(2) : p.perOrder}/order`}
+                  title={p.pct > 0 ? `${p.name}: ${p.pct * 100}% commission` : `${p.name}: $${p.monthly}/mo + $${p.perOrder < 1 ? p.perOrder.toFixed(2) : p.perOrder}/order`}
                   className={`text-[10px] font-bold py-1.5 rounded-lg transition-all ${
                     i === planIndex
                       ? "bg-[#e8614d] text-white shadow-sm"
@@ -404,7 +410,7 @@ function SlideComparison() {
               ))}
             </div>
             <div className="text-[10px] text-gray-400 mt-1.5 text-center">
-              ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order
+              {isPercentPlan ? `${plan.pct * 100}% commission` : `$${plan.monthly}/mo + $${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order`}
             </div>
           </div>
         </div>
@@ -460,12 +466,14 @@ function SlideComparison() {
                 <span className="font-semibold text-gray-900">${fmt(orderSize)}</span>
               </div>
               <div className="flex justify-between text-amber-600">
-                <span>RWC fee/order</span>
+                <span>{isPercentPlan ? `Commission (${plan.pct * 100}%)` : "RWC fee/order"}</span>
                 <span className="font-semibold">-${fmt(rwcSubPerOrder)}</span>
               </div>
-              <div className="text-[10px] text-gray-400 -mt-1 pl-1">
-                ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order, amortized
-              </div>
+              {!isPercentPlan && (
+                <div className="text-[10px] text-gray-400 -mt-1 pl-1">
+                  ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order, amortized
+                </div>
+              )}
               <div className="flex justify-between text-amber-600">
                 <span>Processing (3%)</span>
                 <span className="font-semibold">-${fmt(rwcProcessing)}</span>
