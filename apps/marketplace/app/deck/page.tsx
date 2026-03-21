@@ -328,7 +328,7 @@ function SlideComparison() {
   const rwcProcessing = orderSize * 0.03;
   const rwcPerOrderFee = plan.perOrder;
   const rwcRestaurantPerOrder = orderSize - rwcPerOrderFee - rwcProcessing;
-  const rwcDeliveryFee = 4.5;
+  const rwcDeliveryFee = 7.5;
   const rwcCustomerPays = orderSize + rwcDeliveryFee;
   const rwcAnnualCost = (plan.monthly * 12) + (rwcPerOrderFee * ordersPerYear) + (rwcProcessing * ordersPerYear);
 
@@ -924,15 +924,15 @@ function SlideEconomics() {
             </h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p>
-                <strong className="text-gray-900">$4–5</strong> funds driver
-                co-op
+                <strong className="text-gray-900">$7.50</strong> funds driver
+                wages
               </p>
               <p>
-                ~100 deliveries/day x $4.50 ={" "}
-                <strong className="text-gray-900">~$13,500/mo</strong>
+                ~100 deliveries/day x $7.50 ={" "}
+                <strong className="text-gray-900">~$22,500/mo</strong>
               </p>
               <p className="text-emerald-600 font-semibold">
-                Self-sustaining by month 10
+                City covers coordinator + driver benefits
               </p>
             </div>
           </div>
@@ -947,23 +947,23 @@ function SlideEconomics() {
             {[
               {
                 year: "Year 1",
-                invest: "$50K",
+                invest: "~$130K",
                 kept: "$720K+",
-                roi: "14:1",
+                roi: "5.5:1",
                 roiColor: "text-emerald-600",
               },
               {
                 year: "Year 2",
-                invest: "$25K",
+                invest: "~$120K",
                 kept: "$720K+",
-                roi: "29:1",
+                roi: "6:1",
                 roiColor: "text-emerald-600",
               },
               {
                 year: "Year 3+",
-                invest: "In-kind only",
+                invest: "~$80K",
                 kept: "$720K+",
-                roi: "\u221E",
+                roi: "9:1",
                 roiColor: "text-[#e8614d]",
               },
             ].map((r) => (
@@ -972,7 +972,7 @@ function SlideEconomics() {
                 className="grid grid-cols-4 px-6 py-3 text-sm items-center"
               >
                 <span className="font-bold text-gray-900">{r.year}</span>
-                <span className="text-gray-500">{r.invest} city</span>
+                <span className="text-gray-500">{r.invest}</span>
                 <span className="text-gray-500">{r.kept} kept local</span>
                 <span className={`font-black text-xl ${r.roiColor}`}>
                   {r.roi}
@@ -1067,9 +1067,9 @@ function SlideTheAsk() {
             </h3>
             <ul className="space-y-3 text-sm text-gray-600">
               {[
-                "Run driver co-op",
-                "Program Coordinator (1 FTE)",
-                "$50K Year 1 investment",
+                "Fund Program Coordinator (1 FTE, ~$80K/yr)",
+                "Cover driver benefits: workers' comp, insurance, payroll taxes",
+                "Run driver co-op as city workforce program",
                 "Marketing through city channels",
                 "Connection to Jobs for Youth",
               ].map((item) => (
@@ -1093,7 +1093,7 @@ function SlideTheAsk() {
                 { text: "30 restaurants strengthened", highlight: false },
                 { text: "Measurable KPIs", highlight: false },
                 { text: "National model", highlight: false },
-                { text: "14:1 ROI", highlight: true },
+                { text: "5.5:1 ROI in Year 1", highlight: true },
               ].map((item) => (
                 <li key={item.text} className="flex gap-2 items-start">
                   <span className="text-[#e8614d] mt-0.5">&#10003;</span>
