@@ -29,7 +29,7 @@ export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   preparing: ["ready_for_pickup", "cancelled"],
   ready_for_pickup: ["driver_assigned"],
   driver_assigned: ["en_route"],
-  en_route: ["delivered"],
+  en_route: ["en_route", "delivered"],
   delivered: [],
   cancelled: [],
 };

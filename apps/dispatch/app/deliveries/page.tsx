@@ -100,7 +100,12 @@ function AssignDriverButton({
       const res = await fetch("/api/deliveries/assign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: delivery.id, driver_id: driver.id }),
+        body: JSON.stringify({
+          order_id: delivery.id,
+          driver_id: driver.id,
+          driver_name: driver.full_name,
+          driver_phone: driver.phone,
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
