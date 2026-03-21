@@ -466,14 +466,16 @@ function SlideComparison() {
                 <span className="font-semibold text-gray-900">${fmt(orderSize)}</span>
               </div>
               <div className="flex justify-between text-amber-600">
-                <span>{isPercentPlan ? `Commission (${plan.pct * 100}%)` : "RWC fee/order"}</span>
+                <span>
+                  {isPercentPlan ? `Commission (${plan.pct * 100}%)` : "RWC fee/order"}
+                  {!isPercentPlan && (
+                    <span className="text-[10px] text-gray-400 font-normal ml-1">
+                      (${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order)
+                    </span>
+                  )}
+                </span>
                 <span className="font-semibold">-${fmt(rwcSubPerOrder)}</span>
               </div>
-              {!isPercentPlan && (
-                <div className="text-[10px] text-gray-400 -mt-1 pl-1">
-                  ${plan.monthly}/mo + ${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order, amortized
-                </div>
-              )}
               <div className="flex justify-between text-amber-600">
                 <span>Processing (3%)</span>
                 <span className="font-semibold">-${fmt(rwcProcessing)}</span>
