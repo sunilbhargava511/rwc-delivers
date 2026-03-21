@@ -135,18 +135,18 @@ export default function DeckPage() {
         </div>
       </div>
 
-      {/* Click zones for navigation */}
+      {/* Click zones for navigation — z-30 so interactive slide content (z-40) sits above */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1/5 z-40 cursor-w-resize"
+        className="absolute left-0 top-0 bottom-0 w-1/5 z-30 cursor-w-resize"
         onClick={prev}
       />
       <div
-        className="absolute right-0 top-0 bottom-0 w-1/5 z-40 cursor-e-resize"
+        className="absolute right-0 top-0 bottom-0 w-1/5 z-30 cursor-e-resize"
         onClick={next}
       />
 
-      {/* Slide container */}
-      <div className="w-full h-full relative">
+      {/* Slide container — z-35 so interactive content sits above nav click zones (z-30) */}
+      <div className="w-full h-full relative z-[35]">
         {slides.map((slide, i) => (
           <div
             key={i}
@@ -320,7 +320,7 @@ function SlideComparison() {
   const ddProcessing = orderSize * 0.03;
   const ddRestaurantPerOrder = orderSize - ddCommission - ddProcessing;
   const ddDeliveryFee = 5.99;
-  const ddServiceFee = 7.0;
+  const ddServiceFee = orderSize * 0.14; // ~14% service fee, scales with order size
   const ddCustomerPays = orderSize + ddDeliveryFee + ddServiceFee;
   const ddAnnualCost = (ddCommission + ddProcessing) * ordersPerYear;
 
