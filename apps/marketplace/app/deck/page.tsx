@@ -307,11 +307,36 @@ const PLANS = [
   { name: "Power", monthly: 399, perOrder: 0.5, pct: 0 },
 ] as const;
 
+function getBestPlanIndex(orderSize: number, ordersPerDay: number): number {
+  const ordersPerYear = ordersPerDay * 365;
+  const processing = orderSize * 0.03;
+  let bestIndex = 0;
+  let lowestCost = Infinity;
+  PLANS.forEach((p, i) => {
+    const cost = p.pct > 0
+      ? (orderSize * p.pct + processing) * ordersPerYear
+      : (p.monthly * 12) + (p.perOrder * ordersPerYear) + (processing * ordersPerYear);
+    if (cost < lowestCost) {
+      lowestCost = cost;
+      bestIndex = i;
+    }
+  });
+  return bestIndex;
+}
+
 function SlideComparison() {
   const [orderSize, setOrderSize] = useState(50);
   const [ordersPerDay, setOrdersPerDay] = useState(5);
-  const [planIndex, setPlanIndex] = useState(3); // Pro default
+  const [planIndex, setPlanIndex] = useState(() => getBestPlanIndex(50, 5));
+  const [manualOverride, setManualOverride] = useState(false);
   const plan = PLANS[planIndex];
+
+  // Auto-select best plan when sliders change (unless manually overridden)
+  useEffect(() => {
+    if (!manualOverride) {
+      setPlanIndex(getBestPlanIndex(orderSize, ordersPerDay));
+    }
+  }, [orderSize, ordersPerDay, manualOverride]);
 
   const ordersPerMonth = ordersPerDay * 30;
   const ordersPerYear = ordersPerDay * 365;
@@ -365,7 +390,7 @@ function SlideComparison() {
             </div>
             <input
               type="range" min={15} max={100} step={5} value={orderSize}
-              onChange={(e) => setOrderSize(Number(e.target.value))}
+              onChange={(e) => { setOrderSize(Number(e.target.value)); setManualOverride(false); }}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
               style={{ background: `linear-gradient(to right, #e8614d ${((orderSize - 15) / 85) * 100}%, #e5e7eb ${((orderSize - 15) / 85) * 100}%)` }}
             />
@@ -380,7 +405,7 @@ function SlideComparison() {
             </div>
             <input
               type="range" min={1} max={20} step={1} value={ordersPerDay}
-              onChange={(e) => setOrdersPerDay(Number(e.target.value))}
+              onChange={(e) => { setOrdersPerDay(Number(e.target.value)); setManualOverride(false); }}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
               style={{ background: `linear-gradient(to right, #e8614d ${((ordersPerDay - 1) / 19) * 100}%, #e5e7eb ${((ordersPerDay - 1) / 19) * 100}%)` }}
             />
@@ -397,7 +422,7 @@ function SlideComparison() {
               {PLANS.map((p, i) => (
                 <button
                   key={p.name}
-                  onClick={(e) => { e.stopPropagation(); setPlanIndex(i); }}
+                  onClick={(e) => { e.stopPropagation(); setPlanIndex(i); setManualOverride(true); }}
                   title={p.pct > 0 ? `${p.name}: ${p.pct * 100}% commission` : `${p.name}: $${p.monthly}/mo + $${p.perOrder < 1 ? p.perOrder.toFixed(2) : p.perOrder}/order`}
                   className={`text-[10px] font-bold py-1.5 rounded-lg transition-all ${
                     i === planIndex
