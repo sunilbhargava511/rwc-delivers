@@ -860,24 +860,27 @@ function SlideDriverCoop() {
 /*  Slide 8 — What Gets Built                                          */
 /* ------------------------------------------------------------------ */
 function SlideWhatGetsBuilt() {
-  const apps = [
+  const apps: { name: string; desc: string; color: string; icon: string; url?: string }[] = [
     {
       name: "Marketplace",
       desc: "Customer ordering",
       color: "from-blue-500 to-blue-700",
       icon: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z",
+      url: "https://rwc-delivers-production.up.railway.app",
     },
     {
       name: "Dashboard",
       desc: "Restaurant management",
       color: "from-emerald-500 to-emerald-700",
       icon: "M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2",
+      url: "https://rwc-dashboard-production.up.railway.app",
     },
     {
       name: "Dispatch",
       desc: "Delivery coordination",
       color: "from-amber-500 to-amber-700",
       icon: "M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7",
+      url: "https://rwc-dispatch-production.up.railway.app",
     },
     {
       name: "Delivery",
@@ -904,51 +907,45 @@ function SlideWhatGetsBuilt() {
           Built affordably using modern AI coding tools.
         </p>
 
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          {apps.map((app) => (
-            <div
-              key={app.name}
-              className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm text-center hover:shadow-md transition-shadow"
-            >
-              <div
-                className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-4 shadow-lg`}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+          {apps.map((app) => {
+            const Wrapper = app.url ? "a" : "div";
+            const linkProps = app.url ? { href: app.url, target: "_blank" as const, rel: "noopener noreferrer" } : {};
+            return (
+              <Wrapper
+                key={app.name}
+                {...linkProps}
+                className={`relative z-40 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm text-center hover:shadow-md transition-all ${app.url ? "cursor-pointer hover:scale-105 hover:border-gray-300" : "opacity-60"}`}
               >
-                <svg
-                  className="w-7 h-7 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
+                <div
+                  className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-4 shadow-lg`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={app.icon}
-                  />
-                </svg>
-              </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-1">
-                {app.name}
-              </h3>
-              <p className="text-sm text-gray-500">{app.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center relative z-40">
-          <a
-            href="/demo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e8614d] to-[#f59e0b] text-white font-bold px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Try the Live Demo
-          </a>
-          <p className="text-xs text-gray-400 mt-2">Three apps already built and running</p>
+                  <svg
+                    className="w-7 h-7 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d={app.icon}
+                    />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900 text-lg mb-1">
+                  {app.name}
+                </h3>
+                <p className="text-sm text-gray-500">{app.desc}</p>
+                {app.url ? (
+                  <span className="inline-block mt-2 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live Demo</span>
+                ) : (
+                  <span className="inline-block mt-2 text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Coming Soon</span>
+                )}
+              </Wrapper>
+            );
+          })}
         </div>
       </div>
     </LightSlide>
