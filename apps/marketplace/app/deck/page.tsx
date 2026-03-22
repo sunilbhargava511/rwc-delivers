@@ -348,7 +348,7 @@ function SlideComparison() {
   const ddDeliveryFee = 5.99;
   const ddServiceFee = orderSize * 0.14; // ~14% service fee, scales with order size
   const ddCustomerPays = orderSize + ddDeliveryFee + ddServiceFee;
-  const ddAnnualCost = (ddCommission + ddProcessing) * ordersPerYear;
+  const ddAnnualCost = ddCommission * ordersPerYear;
 
   // RWC fees per order (subscription plan)
   const isPercentPlan = plan.pct > 0;
@@ -358,8 +358,8 @@ function SlideComparison() {
     ? orderSize * plan.pct
     : ordersPerYear > 0 ? ((plan.monthly * 12) + (plan.perOrder * ordersPerYear)) / ordersPerYear : 0;
   const rwcAnnualCost = isPercentPlan
-    ? (orderSize * plan.pct + rwcProcessing) * ordersPerYear
-    : (plan.monthly * 12) + (plan.perOrder * ordersPerYear) + (rwcProcessing * ordersPerYear);
+    ? (orderSize * plan.pct) * ordersPerYear
+    : (plan.monthly * 12) + (plan.perOrder * ordersPerYear);
   const rwcRestaurantPerOrder = orderSize - rwcSubPerOrder - rwcProcessing;
   const rwcDeliveryFee = 7.5;
   const rwcCustomerPays = orderSize + rwcDeliveryFee;
@@ -472,7 +472,7 @@ function SlideComparison() {
               Customer pays: ${fmt(orderSize)} + ${fmt(ddDeliveryFee)} + ${fmt(ddServiceFee)} = <strong className="text-gray-600">${fmt(ddCustomerPays)}</strong>
             </div>
             <div className="mt-2 text-xs text-red-500 font-semibold">
-              Annual cost: ${fmtInt(ddAnnualCost)}/yr in fees
+              Annual DoorDash Cost: ${fmtInt(ddAnnualCost)}/yr
             </div>
           </div>
 
@@ -512,7 +512,7 @@ function SlideComparison() {
               Customer pays: ${fmt(orderSize)} + ${fmt(rwcDeliveryFee)} + no service fee = <strong className="text-gray-600">${fmt(rwcCustomerPays)}</strong>
             </div>
             <div className="mt-2 text-xs text-emerald-600 font-semibold">
-              Annual cost: ${fmtInt(rwcAnnualCost)}/yr ({plan.monthly}/mo + fees)
+              Annual RWC Cost: ${fmtInt(rwcAnnualCost)}/yr
             </div>
           </div>
         </div>
