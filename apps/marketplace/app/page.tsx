@@ -1,6 +1,6 @@
 import { RestaurantFilters } from "../components/RestaurantFilters";
 import { CartDrawer } from "../components/CartDrawer";
-import { getRestaurants } from "../lib/data";
+import { getRestaurants } from "@rwc/db";
 import { formatCurrency, DELIVERY_FEE } from "@rwc/shared";
 
 export default async function HomePage() {

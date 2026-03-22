@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getRestaurantBySlug, getRestaurantMenu } from "../../../lib/data";
+import { getRestaurantBySlug, getRestaurantMenu } from "@rwc/db";
 import { MenuSection } from "../../../components/MenuSection";
 import { CartDrawer } from "../../../components/CartDrawer";
 import { formatTime, getDayName } from "@rwc/shared";
@@ -16,7 +16,7 @@ export default async function RestaurantPage({ params }: Props) {
   const restaurant = await getRestaurantBySlug(slug);
   if (!restaurant) notFound();
 
-  const menu = await getRestaurantMenu(restaurant.id, slug);
+  const menu = await getRestaurantMenu(restaurant.id);
   const { hero, gradient } = getRestaurantImage(slug);
 
   return (
