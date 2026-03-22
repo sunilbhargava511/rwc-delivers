@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { OrderWithItems, OrderStatus } from "@rwc/shared";
 import { Badge } from "@rwc/ui";
 import { OrderCard } from "../../components/OrderCard";
@@ -46,11 +46,24 @@ const COLUMNS: KanbanColumn[] = [
   },
 ];
 
-// TODO: Replace with authenticated restaurant ID once auth is wired
-// "all" = show orders from every restaurant (demo mode)
-const DEMO_RESTAURANT_ID = "all";
-
 export default function OrdersPage() {
+  const [restaurantId, setRestaurantId] = useState<string>("all");
+  const [restaurantName, setRestaurantName] = useState<string | null>(null);
+  const [contextLoading, setContextLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/orders/latest-restaurant")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.restaurant_id) {
+          setRestaurantId(data.restaurant_id);
+          setRestaurantName(data.restaurant_name);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setContextLoading(false));
+  }, []);
+
   const { playChime } = useOrderChime();
   const onNewOrder = useCallback(() => {
     playChime();
@@ -62,7 +75,7 @@ export default function OrdersPage() {
     isLoading,
     updateOrderLocally,
   } = useRealtimeOrders({
-    restaurantId: DEMO_RESTAURANT_ID,
+    restaurantId,
     onNewOrder,
   });
 
@@ -120,12 +133,22 @@ export default function OrdersPage() {
     handleStatusChange(orderId, "ready_for_pickup");
   }
 
+  if (contextLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-400 text-sm">Loading restaurant...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {restaurantName ? `${restaurantName} — Orders` : "Orders"}
+          </h1>
           <Badge variant="brand">{activeCount} active</Badge>
           {/* Connection status indicator */}
           <div className="flex items-center gap-1.5 ml-auto">
