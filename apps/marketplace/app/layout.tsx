@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "../components/Header";
+import { DemoModeBanner } from "../components/DemoModeBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Header />
+        <DemoModeBanner />
         <main className="min-h-screen">{children}</main>
         <footer className="bg-gray-950 text-gray-400 py-12 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
