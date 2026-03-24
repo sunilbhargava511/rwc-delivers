@@ -28,7 +28,7 @@ export default function AboutPage() {
             </div>
             <h3 className="font-semibold text-gray-900">Transparent Pricing</h3>
             <p className="text-sm text-gray-500 mt-1">
-              $4.50 flat delivery fee. No hidden service fees. No surge pricing. Ever.
+              $7.50 flat delivery fee. No hidden service fees. No surge pricing. Ever.
             </p>
           </div>
 
@@ -86,7 +86,7 @@ export default function AboutPage() {
             <tbody className="divide-y divide-gray-100">
               <tr>
                 <td className="px-4 py-3 text-gray-600">Delivery Fee</td>
-                <td className="px-4 py-3 text-center font-medium text-brand-700">$4.50 flat</td>
+                <td className="px-4 py-3 text-center font-medium text-brand-700">$7.50 flat</td>
                 <td className="px-4 py-3 text-center text-gray-500">$2.99-$7.99+</td>
               </tr>
               <tr>

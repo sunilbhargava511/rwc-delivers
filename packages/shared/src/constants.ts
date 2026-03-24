@@ -1,5 +1,5 @@
 // All prices in cents
-export const DELIVERY_FEE = 450; // $4.50
+export const DELIVERY_FEE = 750; // $7.50
 export const MIN_ORDER_AMOUNT = 1500; // $15.00
 export const TIP_DEFAULTS = [300, 500, 700] as const; // $3, $5, $7
 
