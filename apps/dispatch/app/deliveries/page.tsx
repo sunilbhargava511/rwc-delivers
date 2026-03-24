@@ -132,18 +132,26 @@ function AssignDriverButton({
         {assigning ? "Assigning..." : "Assign Driver"}
       </Button>
       {open && (
-        <div className="absolute z-50 mt-1 left-0 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 max-h-60 overflow-y-auto">
+        <div className="absolute z-50 mt-1 left-0 w-64 bg-white rounded-xl shadow-xl ring-1 ring-gray-300 py-2 max-h-60 overflow-y-auto">
+          <div className="px-3 pb-1.5 mb-1 border-b border-gray-100">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Available Drivers</span>
+          </div>
           {drivers.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-400">No drivers available</div>
+            <div className="px-3 py-3 text-sm text-gray-400">No drivers available</div>
           ) : (
             drivers.map((driver) => (
               <button
                 key={driver.id}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 transition-colors flex items-center justify-between"
+                className="w-full text-left px-3 py-2.5 text-sm hover:bg-blue-50 transition-colors flex items-center justify-between gap-2 group"
                 onClick={(e) => { e.stopPropagation(); handleSelect(driver); }}
               >
-                <span className="font-medium">{driver.full_name}</span>
-                <span className="text-xs text-gray-400">{driver.phone}</span>
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                    {driver.full_name.split(" ").map((n) => n[0]).join("")}
+                  </span>
+                  <span className="font-semibold text-gray-800 group-hover:text-blue-700">{driver.full_name}</span>
+                </div>
+                <span className="text-[11px] text-gray-400">{driver.phone}</span>
               </button>
             ))
           )}
@@ -224,22 +232,27 @@ export default function DeliveriesPage() {
   }, [deliveries]);
 
   useEffect(() => {
+    const FALLBACK_DRIVERS: AvailableDriver[] = [
+      { id: "drv_01", full_name: "Carlos M.", phone: "(650) 555-0201" },
+      { id: "drv_02", full_name: "Sofia Ramirez", phone: "(650) 555-0122" },
+      { id: "drv_03", full_name: "Marcus Chen", phone: "(650) 555-0111" },
+    ];
     async function loadDrivers() {
       try {
         const res = await fetch("/api/drivers");
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
-            setDrivers(data);
+            // Merge API drivers with fallback to always have at least 3
+            const apiIds = new Set(data.map((d: AvailableDriver) => d.id));
+            const extras = FALLBACK_DRIVERS.filter((d) => !apiIds.has(d.id));
+            const merged = [...data, ...extras].slice(0, 3);
+            setDrivers(merged);
             return;
           }
         }
       } catch { /* fall through */ }
-      setDrivers([
-        { id: "drv_01", full_name: "Carlos M.", phone: "(650) 555-0201" },
-        { id: "drv_02", full_name: "Sofia Ramirez", phone: "(650) 555-0122" },
-        { id: "drv_03", full_name: "Marcus Chen", phone: "(650) 555-0111" },
-      ]);
+      setDrivers(FALLBACK_DRIVERS);
     }
     loadDrivers();
   }, []);

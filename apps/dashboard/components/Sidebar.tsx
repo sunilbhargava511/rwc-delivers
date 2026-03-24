@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -47,6 +47,16 @@ const navLinks = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [restaurantName, setRestaurantName] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/orders/latest-restaurant")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.restaurant_name) setRestaurantName(data.restaurant_name);
+      })
+      .catch(() => {});
+  }, []);
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -69,7 +79,7 @@ export default function Sidebar() {
           <span className="mt-1.5 block w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
           <div>
             <p className="text-sm font-medium text-gray-900 leading-snug">
-              La Viga Seafood &amp; Cocina Mexicana
+              {restaurantName || "Loading..."}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">Open now</p>
           </div>
