@@ -236,11 +236,9 @@ export default function DeliveriesPage() {
         }
       } catch { /* fall through */ }
       setDrivers([
-        { id: "drv_01", full_name: "Marcus Chen", phone: "(650) 555-0111" },
+        { id: "drv_01", full_name: "Carlos M.", phone: "(650) 555-0201" },
         { id: "drv_02", full_name: "Sofia Ramirez", phone: "(650) 555-0122" },
-        { id: "drv_03", full_name: "Tyler Washington", phone: "(650) 555-0133" },
-        { id: "drv_04", full_name: "Priya Patel", phone: "(650) 555-0144" },
-        { id: "drv_05", full_name: "Jordan Kim", phone: "(650) 555-0155" },
+        { id: "drv_03", full_name: "Marcus Chen", phone: "(650) 555-0111" },
       ]);
     }
     loadDrivers();
@@ -401,7 +399,7 @@ export default function DeliveriesPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block bg-white rounded-xl shadow-sm ring-1 ring-gray-200 overflow-hidden">
+      <div className="hidden md:block bg-white rounded-xl shadow-sm ring-1 ring-gray-200 overflow-visible">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100">
