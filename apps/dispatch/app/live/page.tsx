@@ -56,6 +56,7 @@ export default function LiveMapPage() {
   const { deliveries, isConnected: realtimeConnected, useMock } = useActiveDeliveries();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const hasMapbox = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -301,10 +302,15 @@ export default function LiveMapPage() {
                 variant: "default" as const,
               };
 
+              const isSelected = selectedId === delivery.id;
+
               return (
                 <div
                   key={delivery.id}
-                  className="bg-white rounded-xl shadow-sm ring-1 ring-gray-200/60 p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className={`bg-white rounded-xl shadow-sm ring-1 p-4 hover:shadow-md transition-all cursor-pointer ${
+                    isSelected ? "ring-2 ring-brand-500 shadow-md" : "ring-gray-200/60"
+                  }`}
+                  onClick={() => setSelectedId(isSelected ? null : delivery.id)}
                 >
                   {/* Top row: Order number + status */}
                   <div className="flex items-center justify-between mb-2">
@@ -351,6 +357,68 @@ export default function LiveMapPage() {
                       {formatCurrency(delivery.order_total)}
                     </span>
                   </div>
+
+                  {/* Expanded detail panel */}
+                  {isSelected && (
+                    <div className="mt-3 pt-3 border-t border-gray-200 space-y-3 animate-in slide-in-from-top-1">
+                      {/* Status timeline */}
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Status Timeline</p>
+                        <div className="flex items-center gap-1">
+                          {["placed", "confirmed", "preparing", "ready_for_pickup", "driver_assigned", "en_route", "delivered"].map((step, i) => {
+                            const stepLabels: Record<string, string> = {
+                              placed: "Placed",
+                              confirmed: "Confirmed",
+                              preparing: "Preparing",
+                              ready_for_pickup: "Ready",
+                              driver_assigned: "Assigned",
+                              en_route: "En Route",
+                              delivered: "Delivered",
+                            };
+                            const statusOrder = ["placed", "confirmed", "preparing", "ready_for_pickup", "driver_assigned", "en_route_to_pickup", "at_pickup", "en_route_to_delivery", "delivered"];
+                            const currentIdx = statusOrder.indexOf(delivery.status);
+                            const stepIdx = i; // simplified mapping
+                            const isComplete = stepIdx <= Math.min(currentIdx, 6);
+                            const isCurrent = stepIdx === Math.min(currentIdx, 6);
+                            return (
+                              <div key={step} className="flex-1 flex flex-col items-center">
+                                <div className={`w-full h-1.5 rounded-full ${isComplete ? "bg-brand-500" : "bg-gray-200"} ${isCurrent ? "animate-pulse" : ""}`} />
+                                <span className={`text-[9px] mt-1 ${isComplete ? "text-brand-600 font-medium" : "text-gray-400"}`}>
+                                  {stepLabels[step]}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Driver & order details */}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <span className="text-gray-400">Pickup</span>
+                          <p className="font-medium text-gray-700 truncate">{delivery.restaurant_address}</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <span className="text-gray-400">Deliver to</span>
+                          <p className="font-medium text-gray-700 truncate">{delivery.customer_address}</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <span className="text-gray-400">Placed at</span>
+                          <p className="font-medium text-gray-700">{new Date(delivery.placed_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <span className="text-gray-400">Order Total</span>
+                          <p className="font-medium text-gray-700">{formatCurrency(delivery.order_total)}</p>
+                        </div>
+                      </div>
+
+                      {/* Full items list */}
+                      <div className="bg-gray-50 rounded-lg p-2">
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wider">Items</span>
+                        <p className="text-xs text-gray-700 mt-0.5">{delivery.items_summary}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
