@@ -22,8 +22,10 @@ export function isRestaurantOpen(
   hours: RestaurantHours[],
   now: Date = new Date()
 ): boolean {
-  const dayOfWeek = now.getDay(); // 0=Sunday
-  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  // Convert to Pacific time since restaurant hours are stored in Pacific
+  const pacificNow = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+  const dayOfWeek = pacificNow.getDay(); // 0=Sunday
+  const currentTime = `${String(pacificNow.getHours()).padStart(2, "0")}:${String(pacificNow.getMinutes()).padStart(2, "0")}`;
 
   const todayHours = hours.filter((h) => h.day_of_week === dayOfWeek);
   if (todayHours.length === 0) return false;
