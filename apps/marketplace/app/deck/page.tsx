@@ -553,7 +553,7 @@ function SlideVision() {
       <div className="max-w-5xl w-full">
         <SlideLabel>The Vision</SlideLabel>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-          A city-backed delivery platform that keeps money local, creates youth
+          A city-backed delivery platform that keeps money local, creates
           jobs, and supports independent restaurants.
         </h2>
         <p className="text-gray-400 mb-12 text-lg">Three pillars.</p>
@@ -581,10 +581,10 @@ function SlideVision() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Youth Employment
+              Local Employment
             </h3>
             <p className="text-gray-500 leading-relaxed">
-              <strong className="text-gray-700">15–20 local students</strong>{" "}
+              <strong className="text-gray-700">15–20 local residents</strong>{" "}
               employed as W-2 delivery drivers
             </p>
           </div>
@@ -818,7 +818,7 @@ function SlideDriverCoop() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "W-2 wages", value: "$18–22/hr" },
-                { label: "Local youth", value: "Sequoia High, Canada College" },
+                { label: "Local hiring", value: "Redwood City residents" },
                 { label: "Real jobs", value: "Not gig work" },
                 { label: "Quality", value: "City controls standards" },
                 { label: "Subsidy", value: "County $2M Workforce Initiative" },
@@ -1139,7 +1139,7 @@ function SlideTheAsk() {
                 "Cover driver benefits: workers' comp, insurance, payroll taxes",
                 "Run driver co-op as city workforce program",
                 "Marketing through city channels",
-                "Connection to Jobs for Youth",
+                "Connection to local jobs programs",
               ].map((item) => (
                 <li key={item} className="flex gap-2 items-start">
                   <span className="text-[#e8614d] mt-0.5 font-bold">&#8594;</span>
@@ -1157,7 +1157,7 @@ function SlideTheAsk() {
             <ul className="space-y-3 text-sm text-white/70">
               {[
                 { text: "$720K+/yr kept local", highlight: true },
-                { text: "15–20 youth jobs", highlight: true },
+                { text: "15–20 local jobs", highlight: true },
                 { text: "30 restaurants strengthened", highlight: false },
                 { text: "Measurable KPIs", highlight: false },
                 { text: "National model", highlight: false },
