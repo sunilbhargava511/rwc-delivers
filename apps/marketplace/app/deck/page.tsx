@@ -472,7 +472,7 @@ function SlideComparison() {
               Customer pays: ${fmt(orderSize)} + ${fmt(ddDeliveryFee)} + ${fmt(ddServiceFee)} = <strong className="text-gray-600">${fmt(ddCustomerPays)}</strong>
             </div>
             <div className="mt-2 text-xs text-red-500 font-semibold">
-              Annual DoorDash Cost: ${fmtInt(ddAnnualCost)}/yr
+              Spend on DoorDash: ${fmtInt(ddAnnualCost)}/yr
             </div>
           </div>
 
@@ -512,7 +512,7 @@ function SlideComparison() {
               Customer pays: ${fmt(orderSize)} + ${fmt(rwcDeliveryFee)} + no service fee = <strong className="text-gray-600">${fmt(rwcCustomerPays)}</strong>
             </div>
             <div className="mt-2 text-xs text-emerald-600 font-semibold">
-              Annual RWC Cost: ${fmtInt(rwcAnnualCost)}/yr
+              Spend on RWC: ${fmtInt(rwcAnnualCost)}/yr
             </div>
           </div>
         </div>
@@ -721,8 +721,8 @@ function SlideHowItWorks() {
     },
     {
       num: "3",
-      title: "Student Driver Delivers",
-      desc: "City-employed student picks up and delivers within downtown zone",
+      title: "City Driver Delivers",
+      desc: "City-employed driver picks up and delivers within downtown zone",
       icon: (
         <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
