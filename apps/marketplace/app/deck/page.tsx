@@ -591,7 +591,7 @@ function SlideVision() {
       <div className="max-w-5xl w-full">
         <SlideLabel>The Vision</SlideLabel>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-          A community delivery platform that keeps money local, creates
+          A city-designed delivery platform that keeps money local, creates
           real jobs, and supports independent restaurants.
         </h2>
         <p className="text-gray-400 mb-12 text-lg">Three pillars.</p>
@@ -820,10 +820,10 @@ function SlideDriverCoop() {
   return (
     <DarkSlide>
       <div className="max-w-5xl w-full">
-        <SlideLabel>The Driver Co-op</SlideLabel>
+        <SlideLabel>City Guides the Driver Co-op</SlideLabel>
         <p className="text-white/50 text-base sm:text-lg italic mb-10 max-w-3xl">
-          &ldquo;This is the centerpiece — W-2 drivers employed by an
-          independent company, not gig workers.&rdquo;
+          &ldquo;City-designed, locally operated — W-2 drivers,
+          not gig workers.&rdquo;
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
