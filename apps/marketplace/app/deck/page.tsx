@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 /*  Slide data                                                         */
 /* ------------------------------------------------------------------ */
 
-const TOTAL_SLIDES = 12;
+const TOTAL_SLIDES = 11;
 
 /* ------------------------------------------------------------------ */
 /*  Main component                                                     */
@@ -86,10 +86,9 @@ export default function DeckPage() {
     <SlideDriverCoop key={5} />,
     <SlideWhatGetsBuilt key={6} />,
     <SlidePricing key={7} />,
-    <SlideEconomics key={8} />,
-    <SlideWhyNow key={9} />,
-    <SlideTheAsk key={10} />,
-    <SlideClosing key={11} />,
+    <SlideWhyNow key={8} />,
+    <SlideTheAsk key={9} />,
+    <SlideClosing key={10} />,
   ];
 
   return (
