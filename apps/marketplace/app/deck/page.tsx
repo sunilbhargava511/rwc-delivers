@@ -518,7 +518,7 @@ function SlideComparison() {
         </div>
 
         {/* Dynamic impact stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
             <div className="text-xl sm:text-2xl font-black text-emerald-700">
               {annualSavings > 0 ? `+$${fmtInt(annualSavings)}` : `-$${fmtInt(Math.abs(annualSavings))}`}
@@ -539,6 +539,44 @@ function SlideComparison() {
             <div className="text-[10px] text-amber-500">{numRestaurants} restaurants</div>
           </div>
         </div>
+
+        {/* Assumptions & Restaurant Break-Even */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DoorDash Assumptions</h4>
+            <div className="space-y-1 text-xs text-gray-600">
+              <div className="flex justify-between"><span>Commission</span><span className="font-semibold text-red-600">27%</span></div>
+              <div className="flex justify-between"><span>Processing fee</span><span className="font-semibold text-red-600">3%</span></div>
+              <div className="flex justify-between"><span>Customer delivery fee</span><span className="font-semibold text-gray-900">$5.99</span></div>
+              <div className="flex justify-between"><span>Customer service fee</span><span className="font-semibold text-gray-900">~14%</span></div>
+              <div className="flex justify-between border-t border-gray-200 pt-1 mt-1"><span className="font-bold text-gray-900">Total take from restaurant</span><span className="font-black text-red-600">30%</span></div>
+            </div>
+          </div>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+            <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-2">RWC Delivers — {plan.name} Plan</h4>
+            <div className="space-y-1 text-xs text-gray-600">
+              {isPercentPlan ? (
+                <>
+                  <div className="flex justify-between"><span>Commission</span><span className="font-semibold text-amber-600">{plan.pct * 100}%</span></div>
+                  <div className="flex justify-between"><span>Processing fee</span><span className="font-semibold text-amber-600">3%</span></div>
+                  <div className="flex justify-between"><span>Monthly subscription</span><span className="font-semibold text-gray-900">$0</span></div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between"><span>Monthly subscription</span><span className="font-semibold text-amber-600">${plan.monthly}/mo</span></div>
+                  <div className="flex justify-between"><span>Per-order fee</span><span className="font-semibold text-amber-600">${plan.perOrder < 1 ? plan.perOrder.toFixed(2) : plan.perOrder}/order</span></div>
+                  <div className="flex justify-between"><span>Processing fee</span><span className="font-semibold text-amber-600">3%</span></div>
+                </>
+              )}
+              <div className="flex justify-between"><span>Customer delivery fee</span><span className="font-semibold text-gray-900">$7.50</span></div>
+              <div className="flex justify-between"><span>Customer service fee</span><span className="font-semibold text-emerald-600">$0</span></div>
+              <div className="flex justify-between border-t border-emerald-200 pt-1 mt-1">
+                <span className="font-bold text-gray-900">Effective cost per order</span>
+                <span className="font-black text-emerald-600">${fmt(rwcSubPerOrder + rwcProcessing)} ({((rwcSubPerOrder + rwcProcessing) / orderSize * 100).toFixed(1)}%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </LightSlide>
   );
@@ -553,8 +591,8 @@ function SlideVision() {
       <div className="max-w-5xl w-full">
         <SlideLabel>The Vision</SlideLabel>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-          A city-backed delivery platform that keeps money local, creates
-          jobs, and supports independent restaurants.
+          A community delivery platform that keeps money local, creates
+          real jobs, and supports independent restaurants.
         </h2>
         <p className="text-gray-400 mb-12 text-lg">Three pillars.</p>
 
@@ -585,7 +623,7 @@ function SlideVision() {
             </h3>
             <p className="text-gray-500 leading-relaxed">
               <strong className="text-gray-700">15–20 local residents</strong>{" "}
-              employed as W-2 delivery drivers
+              hired as W-2 delivery drivers
             </p>
           </div>
 
@@ -722,7 +760,7 @@ function SlideHowItWorks() {
     {
       num: "3",
       title: "City Driver Delivers",
-      desc: "City-employed driver picks up and delivers within downtown zone",
+      desc: "W-2 driver picks up and delivers within the downtown zone",
       icon: (
         <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -782,30 +820,30 @@ function SlideDriverCoop() {
   return (
     <DarkSlide>
       <div className="max-w-5xl w-full">
-        <SlideLabel>The City Runs the Driver Co-op</SlideLabel>
+        <SlideLabel>The Driver Co-op</SlideLabel>
         <p className="text-white/50 text-base sm:text-lg italic mb-10 max-w-3xl">
-          &ldquo;This is the centerpiece — what makes RWC Delivers a city
-          program, not just an app.&rdquo;
+          &ldquo;This is the centerpiece — W-2 drivers employed by an
+          independent company, not gig workers.&rdquo;
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* What the city operates */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
             <h3 className="text-lg font-bold text-white mb-5">
-              What the City Operates
+              How It Works
             </h3>
             <ul className="space-y-3 text-white/60 text-sm">
               <li className="flex gap-3 items-start">
                 <span className="text-[#e8614d] text-lg leading-none">&#9679;</span>
-                Hire <strong className="text-white">15–20 drivers</strong>
+                Independent company hires <strong className="text-white">15–20 W-2 drivers</strong>
               </li>
               <li className="flex gap-3 items-start">
                 <span className="text-[#e8614d] text-lg leading-none">&#9679;</span>
-                Program Coordinator <strong className="text-white">(1 FTE)</strong>
+                Program Coordinator <strong className="text-white">(1 FTE)</strong> manages operations
               </li>
               <li className="flex gap-3 items-start">
                 <span className="text-[#e8614d] text-lg leading-none">&#9679;</span>
-                <strong className="text-white">AB5 compliant</strong> from day one
+                <strong className="text-white">AB5 compliant</strong> from day one — no gig risk
               </li>
             </ul>
           </div>
@@ -813,16 +851,16 @@ function SlideDriverCoop() {
           {/* Why city-run wins */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
             <h3 className="text-lg font-bold text-white mb-5">
-              Why City-Run Wins
+              Why W-2 Wins
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "W-2 wages", value: "$18–22/hr" },
                 { label: "Local hiring", value: "Redwood City residents" },
                 { label: "Real jobs", value: "Not gig work" },
-                { label: "Quality", value: "City controls standards" },
-                { label: "Subsidy", value: "County $2M Workforce Initiative" },
-                { label: "Resume says", value: "\"City of Redwood City\"" },
+                { label: "Quality", value: "Managed, trained drivers" },
+                { label: "Benefits", value: "Health, workers' comp, PTO" },
+                { label: "Retention", value: "Real career, not gig churn" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -1000,7 +1038,7 @@ function SlideEconomics() {
                 <strong className="text-gray-900">~$22,500/mo</strong>
               </p>
               <p className="text-emerald-600 font-semibold">
-                City covers coordinator + driver benefits
+                Delivery fees fund driver wages + benefits
               </p>
             </div>
           </div>
@@ -1009,7 +1047,7 @@ function SlideEconomics() {
         {/* ROI Table */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="bg-gray-900 text-white text-xs font-bold uppercase tracking-widest px-6 py-3">
-            City Investment & ROI
+            Platform Investment & ROI
           </div>
           <div className="divide-y divide-gray-100">
             {[
@@ -1069,7 +1107,7 @@ function SlideWhyNow() {
     },
     {
       title: "AB5 makes gig model fragile",
-      detail: "City W-2 program compliant from day one",
+      detail: "W-2 model compliant from day one",
     },
     {
       title: "Technology cost near zero",
@@ -1135,11 +1173,11 @@ function SlideTheAsk() {
             </h3>
             <ul className="space-y-3 text-sm text-gray-600">
               {[
-                "Fund Program Coordinator (1 FTE, ~$80K/yr)",
-                "Cover driver benefits: workers' comp, insurance, payroll taxes",
-                "Run driver co-op as city workforce program",
-                "Marketing through city channels",
-                "Connection to local jobs programs",
+                "Endorse and promote the platform to local restaurants",
+                "Marketing through city channels and community events",
+                "Help connect with local workforce programs",
+                "Permitting and logistical support",
+                "Champion the model as a community initiative",
               ].map((item) => (
                 <li key={item} className="flex gap-2 items-start">
                   <span className="text-[#e8614d] mt-0.5 font-bold">&#8594;</span>
